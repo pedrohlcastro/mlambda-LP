@@ -1,7 +1,7 @@
 # mlambda-LP
 TP1-Laboratório de Linguagens de Progamação
 
-##Modificar Args com NetBeans
+## Modificar Args com NetBeans
 Para executar arquivos '.ml', será preciso:
 	<ol>
 		<li>Clique na aba executar no Menu do NetBeans.</li>
