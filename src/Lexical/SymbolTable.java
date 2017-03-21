@@ -16,7 +16,7 @@ class SymbolTable {
         this.st.put(":", TokenType.SEMI_COLON);  // :
         this.st.put(";", TokenType.DOT_COMMA);  // ;
         this.st.put("(", TokenType.PAR_OPEN);  // (
-        this.st.put(");", TokenType.PAR_CLOSE);  // );
+        this.st.put(")", TokenType.PAR_CLOSE);  // );
         this.st.put("{", TokenType.CBRA_OPEN);  // {
         this.st.put("}", TokenType.CBRA_CLOSE);  // }
         this.st.put("[", TokenType.SBRA_OPEN);  // [

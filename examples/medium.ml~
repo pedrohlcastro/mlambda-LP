@@ -12,4 +12,4 @@ array.filter(n -> n > medium).size() : right;
 # Print the results.
 println("Existe(m) " . left . " valor(es) menor(es) e " . right .
          " valor(es) maior(es) que a mediana " . medium);
-
+dsa
