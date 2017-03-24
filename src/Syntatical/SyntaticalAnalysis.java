@@ -154,8 +154,27 @@ public class SyntaticalAnalysis {
     }
     
     //<boolop> ::= '==' | '!=' | '<' | '>' | '<=' | '>='
-    private void procBoolOp(){
-    
+    private void procBoolOp() throws IOException{
+        if(this.current.type == TokenType.EQUAL){
+            this.matchToken(TokenType.EQUAL);
+        }
+        else if(this.current.type == TokenType.DIFF){
+            this.matchToken(TokenType.DIFF);
+        }
+        else if(this.current.type == TokenType.LOWER){
+            this.matchToken(TokenType.LOWER);
+        }
+        else if(this.current.type == TokenType.HIGHER){
+            this.matchToken(TokenType.HIGHER);
+        }
+        else if(this.current.type == TokenType.LOWER_EQ){
+            this.matchToken(TokenType.LOWER_EQ);
+        }
+        else if(this.current.type == TokenType.HIGHER_EQ){
+            this.matchToken(TokenType.HIGHER_EQ);
+        }
+        else //talvez
+            this.showError();
     }
     
     //<expr> ::= <term> [ ('+' | '-') <term> ]
@@ -175,8 +194,24 @@ public class SyntaticalAnalysis {
     }
     
     // <term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
-    private void procTerm (){
-    
+    private void procTerm () throws IOException{
+        if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+            this.procFactor();
+            if(this.current.type == TokenType.MUL)
+                this.matchToken(TokenType.MUL);
+            else if(this.current.type == TokenType.DIV)
+                this.matchToken(TokenType.DIV);
+            else if(this.current.type == TokenType.MOD){
+                this.matchToken(TokenType.MOD);                     
+            }
+            else{
+                this.showError();
+            }
+            this.procFactor();
+        }
+        else{ //TALVEZ
+            this.showError();
+        }
     }
     
     //<factor> ::= [‘+’ | ‘-‘] <number> | <load> | <value> | '(' <expr> ')'
@@ -218,8 +253,33 @@ public class SyntaticalAnalysis {
     }
 
     //<value> ::= (<new> | <var>) { '.' <array> } [ '.' <int> ]
-    private void procValue(){
-        
+    private void procValue() throws IOException{
+        if(this.current.type == TokenType.NEW){
+            this.procNew();
+        }
+        else if(this.current.type == TokenType.VAR){
+            this.procVar();
+        }
+        while(this.current.type == TokenType.DOT){
+            this.matchToken(TokenType.DOT);
+            if(this.current.type == TokenType.SHOW || this.current.type == TokenType.SORT || this.current.type == TokenType.ADD || this.current.type == TokenType.SET || this.current.type == TokenType.FILTER || this.current.type == TokenType.REMOVE || this.current.type == TokenType.EACH || this.current.type == TokenType.APPLY){
+                this.procArray();
+                if(this.current.type == TokenType.DOT){
+                    this.matchToken(TokenType.DOT);
+                    if(this.current.type == TokenType.AT){
+                        this.procAt();
+                    } 
+                    else if(this.current.type == TokenType.SIZE){
+                        this.procSize();
+                    }
+                    else{
+                        this.showError();
+                    }       
+                }
+            }
+            else
+                this.showError();
+        }
     }
     
     //<new> ::= new (<nzero> | <nrand> | <nfill>)
@@ -248,8 +308,15 @@ public class SyntaticalAnalysis {
     }
     
     //<nrand> ::= rand '[' <expr> ']'
-    private void procNrand(){
-        
+    private void procNrand() throws IOException{
+        if(this.current.type == TokenType.RAND){
+            this.matchToken(TokenType.RAND);
+            this.matchToken(TokenType.CBRA_OPEN);
+            this.procExpr();
+            this.matchToken(TokenType.CBRA_CLOSE);
+        }
+        else
+            this.showError();
     }
     
     //<nfill> ::= fill '[' <expr> ',' <expr> ']'
@@ -263,8 +330,33 @@ public class SyntaticalAnalysis {
     }
 
     //<array> ::= <show> | <sort> | <add> | <set> | <filter> | <remove> | <each> | <apply>
-    private void procArray (){
-        
+    private void procArray () throws IOException{
+        if(this.current.type == TokenType.SHOW){
+            this.procShow();
+        }
+        else if(this.current.type == TokenType.SORT){
+            this.procSort();
+        }
+        else if(this.current.type == TokenType.ADD){
+            this.procAdd();
+        }
+        else if(this.current.type == TokenType.SET){
+            this.procSet();
+        }
+        else if(this.current.type == TokenType.FILTER){
+            this.procFilter();
+        }
+        else if(this.current.type ==  TokenType.REMOVE){
+            this.procRemove();
+        }
+        else if(this.current.type ==  TokenType.EACH){
+            this.procEach();
+        }
+        else if(this.current.type ==  TokenType.APPLY){
+            this.procApply();
+        }
+        else
+            this.showError();
     }
     
     //<show> ::= show '(' ')'
@@ -275,8 +367,14 @@ public class SyntaticalAnalysis {
     }
     
     //<sort> ::= sort '(' ')'
-    private void procSort(){
-        
+    private void procSort() throws IOException{
+        if(this.current.type == TokenType.SORT){
+            this.matchToken(TokenType.SORT);
+            this.matchToken(TokenType.PAR_OPEN);
+            this.matchToken(TokenType.PAR_CLOSE);
+        }
+        else
+            this.showError();
     }
     
     //<add> ::= add '(' <expr> ')'
@@ -288,8 +386,19 @@ public class SyntaticalAnalysis {
     }
     
     //<set> ::= set '(' <expr> ',' <expr> ')'
-    private void procSet(){
-        
+    private void procSet() throws IOException{
+        if(this.current.type == TokenType.SET){
+            this.matchToken(TokenType.SET);
+            this.matchToken(TokenType.PAR_OPEN);
+            if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+                this.procExpr();
+                this.matchToken(TokenType.COMMA);
+                this.procExpr();
+            }
+            else
+                this.showError();
+            this.matchToken(TokenType.PAR_CLOSE);
+        }
     }
     
     //<filter> ::= filter '(' <var> '->' <boolexpr> ')'
