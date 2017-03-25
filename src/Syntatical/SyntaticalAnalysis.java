@@ -133,8 +133,28 @@ public class SyntaticalAnalysis {
     }
     
     // <text> ::= (<string> | <expr>) { ‘.’ (<string> | <expr>) }
-    private void procText (){
-        //todo
+    private void procText () throws IOException{
+        if(this.current.type == TokenType.STRING){
+            this.matchToken(TokenType.STRING);
+        }
+        else if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+            this.procExpr();
+        }
+        else{
+            this.showError();
+        }
+        while(this.current.type == TokenType.DOT){
+            this.matchToken(TokenType.DOT);
+            if(this.current.type == TokenType.STRING){
+                this.matchToken(TokenType.STRING);
+            }
+            else if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+                this.procExpr();
+            }
+            else{
+                this.showError();
+            }
+        }
     }
     
     // <boolexpr> ::= <expr> <boolop> <expr> { (and | or) <boolexpr> }
@@ -412,8 +432,13 @@ public class SyntaticalAnalysis {
     }
     
     //<remove> ::= remove '(' <var> '->' <boolexpr> ')'
-    private void procRemove (){
-        
+    private void procRemove () throws IOException{
+        this.matchToken(TokenType.REMOVE);
+        this.matchToken(TokenType.PAR_OPEN);
+        this.procVar();
+        this.matchToken(TokenType.ARROW);
+        this.procBoolExpr();
+        this.matchToken(TokenType.PAR_CLOSE);
     }
     
     //<each> ::= each '(' <var> '->' <statements> ')'
@@ -427,8 +452,13 @@ public class SyntaticalAnalysis {
     }
     
     //<apply> ::= apply '(' <var> '->' <statements> ')'
-    private void procApply (){
-        
+    private void procApply () throws IOException{
+        this.matchToken(TokenType.APPLY);
+        this.matchToken(TokenType.PAR_OPEN);
+        this.procVar();
+        this.matchToken(TokenType.ARROW);
+        this.procStatements();
+        this.matchToken(TokenType.PAR_CLOSE);
     }
     
     //<int> ::= <at> | <size>
@@ -443,6 +473,10 @@ public class SyntaticalAnalysis {
     
     //<at> ::= at '(' <expr> ')'
     private void procAt() throws IOException{
+        this.matchToken(TokenType.AT);
+        this.matchToken(TokenType.PAR_OPEN);
+        this.procExpr();
+        this.matchToken(TokenType.PAR_CLOSE);
     }
     
     //<size> ::= size '(' ')'
