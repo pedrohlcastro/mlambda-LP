@@ -39,8 +39,11 @@ public class LexicalAnalysis implements AutoCloseable {
                 case 1:
                     if (c == -1)
                         e = 10;
-                    else if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+                    else if (c == ' ' || c == '\t' || c == '\n' || c == '\r'){
                         e = 1;
+                        if (c == '\n')
+                            this.line++;
+                    }
                     else if (c == '#')
                         e = 2;
                     else if (Character.isDigit(c)){
@@ -77,8 +80,10 @@ public class LexicalAnalysis implements AutoCloseable {
                     }
                     break;
                 case 2:
-                    if (c == '\n' || c == '\r')
+                    if (c == '\n' || c == '\r'){
                         e = 1;
+                        this.line++;
+                    }
                     break;
                 case 3:
                     if (Character.isDigit(c)){

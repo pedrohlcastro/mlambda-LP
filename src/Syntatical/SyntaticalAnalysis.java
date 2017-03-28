@@ -13,6 +13,11 @@ public class SyntaticalAnalysis {
         this.current = lex.nextToken();
     }
     
+    public void init () throws IOException{
+        this.procStatements();
+        this.matchToken(TokenType.END_OF_FILE);
+    }
+    
     private void showError() {
         if (this.current.type == TokenType.UNEXPECTED_EOF)
             this.errorUnexpectedEOF ();
@@ -49,7 +54,6 @@ public class SyntaticalAnalysis {
                 || this.current.type == TokenType.IF || this.current.type == TokenType.WHILE){
             this.procCmd();
         }
-        
     }
     
     //<cmd> ::= <assign> | <print> | <if> | <while>
@@ -75,7 +79,7 @@ public class SyntaticalAnalysis {
     
     //<assign> ::= <expr> [ ':' <var> {‘,’ <var> } ] ';'
     private void procAssign () throws IOException{
-        this.procExpr ();
+        this.procExpr();
         
         if (this.current.type == TokenType.SEMI_COLON){
             this.matchToken(TokenType.SEMI_COLON);
@@ -137,18 +141,19 @@ public class SyntaticalAnalysis {
         if(this.current.type == TokenType.STRING){
             this.matchToken(TokenType.STRING);
         }
-        else if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+        else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
             this.procExpr();
         }
         else{
             this.showError();
         }
-        while(this.current.type == TokenType.DOT){
-            this.matchToken(TokenType.DOT);
+        
+        while(this.current.type == TokenType.COMMA){
+            this.matchToken(TokenType.COMMA);
             if(this.current.type == TokenType.STRING){
                 this.matchToken(TokenType.STRING);
             }
-            else if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+            else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
                 this.procExpr();
             }
             else{
@@ -208,15 +213,15 @@ public class SyntaticalAnalysis {
             this.matchToken(TokenType.MINUS);
             this.procTerm();
         }
-        else {
-            this.showError();
-        }   
+        //else {
+        //    this.showError();
+        //}   
     }
     
     // <term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
     private void procTerm () throws IOException{
-        if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-            this.procFactor();
+        this.procFactor();
+        if(this.current.type == TokenType.MUL || this.current.type == TokenType.DIV || this.current.type == TokenType.MOD){
             if(this.current.type == TokenType.MUL)
                 this.matchToken(TokenType.MUL);
             else if(this.current.type == TokenType.DIV)
@@ -228,9 +233,7 @@ public class SyntaticalAnalysis {
                 this.showError();
             }
             this.procFactor();
-        }
-        else{ //TALVEZ
-            this.showError();
+
         }
     }
     
@@ -244,8 +247,11 @@ public class SyntaticalAnalysis {
             this.matchToken(TokenType.MINUS);
             this.matchToken(TokenType.NUMBER);
         }
+        else if (this.current.type == TokenType.NUMBER){
+            this.matchToken(TokenType.NUMBER);
+        }
         else if (this.current.type == TokenType.LOAD){
-            this.matchToken(TokenType.LOAD);
+            this.procLoad();
         }
         else if (this.current.type == TokenType.NEW){
             this.procValue();
@@ -282,23 +288,12 @@ public class SyntaticalAnalysis {
         }
         while(this.current.type == TokenType.DOT){
             this.matchToken(TokenType.DOT);
-            if(this.current.type == TokenType.SHOW || this.current.type == TokenType.SORT || this.current.type == TokenType.ADD || this.current.type == TokenType.SET || this.current.type == TokenType.FILTER || this.current.type == TokenType.REMOVE || this.current.type == TokenType.EACH || this.current.type == TokenType.APPLY){
-                this.procArray();
-                if(this.current.type == TokenType.DOT){
-                    this.matchToken(TokenType.DOT);
-                    if(this.current.type == TokenType.AT){
-                        this.procAt();
-                    } 
-                    else if(this.current.type == TokenType.SIZE){
-                        this.procSize();
-                    }
-                    else{
-                        this.showError();
-                    }       
-                }
+            if (current.type == TokenType.AT || current.type == TokenType.SIZE){
+                this.procInt();
+                break;
             }
-            else
-                this.showError();
+            else 
+                this.procArray();
         }
     }
     
@@ -329,14 +324,10 @@ public class SyntaticalAnalysis {
     
     //<nrand> ::= rand '[' <expr> ']'
     private void procNrand() throws IOException{
-        if(this.current.type == TokenType.RAND){
-            this.matchToken(TokenType.RAND);
-            this.matchToken(TokenType.CBRA_OPEN);
-            this.procExpr();
-            this.matchToken(TokenType.CBRA_CLOSE);
-        }
-        else
-            this.showError();
+        this.matchToken(TokenType.RAND);
+        this.matchToken(TokenType.SBRA_OPEN);
+        this.procExpr();
+        this.matchToken(TokenType.SBRA_CLOSE);
     }
     
     //<nfill> ::= fill '[' <expr> ',' <expr> ']'
