@@ -14,5 +14,4 @@ array.each(n -> if n % 2 == 0 {
 
 
 # Print the result.
-println("Voce entrou com " , par , " par(es) e " , impar , " impar(es)");
-
+println("Voce entrou com " , par , " par(es) e " , impar , " impar(es)")

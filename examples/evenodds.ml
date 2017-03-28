@@ -1,6 +1,6 @@
 # Load the vector with user input.
 load("Entre com o tamanho do vetor: ") : s;
-new zero [s] ; array;
+new zero [s] : array;
 0 : i;
 array.apply(n -> i + 1 : i; load("Valor " , i , ": ") : n;);
 
@@ -15,4 +15,3 @@ array.each(n -> if n % 2 == 0 {
 
 # Print the result.
 println("Voce entrou com " , par , " par(es) e " , impar , " impar(es)");
-

@@ -19,7 +19,7 @@ public class SyntaticalAnalysis {
     }
     
     private void showError() {
-        if (this.current.type == TokenType.UNEXPECTED_EOF)
+        if (this.current.type == TokenType.UNEXPECTED_EOF || this.current.type == TokenType.END_OF_FILE)
             this.errorUnexpectedEOF ();
         else
             this.errorUnexpectedToken (this.current.token);
@@ -40,8 +40,7 @@ public class SyntaticalAnalysis {
             this.current = lex.nextToken();
         }
         else {
-            System.out.printf ("Lexema não esperado!");
-            System.exit(0);
+            this.showError();
         }
     }
     
