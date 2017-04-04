@@ -3,6 +3,7 @@ import Lexical.Lexeme;
 import Lexical.LexicalAnalysis;
 import Lexical.TokenType;
 import java.io.IOException;
+import Model.*;
 
 public class SyntaticalAnalysis {
     private Lexeme current;
@@ -45,7 +46,7 @@ public class SyntaticalAnalysis {
     }
     
     //<statements> ::= <cmd>  { <cmd> }
-    private void procStatements () throws IOException {
+    private CommandBlock procStatements () throws IOException {
         this.procCmd();
         while (this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER
                 || this.current.type == TokenType.LOAD || this.current.type == TokenType.NEW || this.current.type == TokenType.VAR
@@ -53,10 +54,11 @@ public class SyntaticalAnalysis {
                 || this.current.type == TokenType.IF || this.current.type == TokenType.WHILE){
             this.procCmd();
         }
+        return null;
     }
     
     //<cmd> ::= <assign> | <print> | <if> | <while>
-    private void procCmd () throws IOException{
+    private Command procCmd () throws IOException{
         if (this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER
                 || this.current.type == TokenType.LOAD || this.current.type == TokenType.NEW || this.current.type == TokenType.VAR
                 || this.current.type == TokenType.PAR_OPEN){
@@ -74,10 +76,12 @@ public class SyntaticalAnalysis {
         else {
             this.showError();
         }
+        
+        return null;
     }
     
     //<assign> ::= <expr> [ ':' <var> {‘,’ <var> } ] ';'
-    private void procAssign () throws IOException{
+    private AssignCommand procAssign () throws IOException{
         this.procExpr();
         
         if (this.current.type == TokenType.SEMI_COLON){
@@ -89,10 +93,11 @@ public class SyntaticalAnalysis {
             }
         }
         this.matchToken (TokenType.DOT_COMMA);
+        return null;
     }
     
     //<print> ::= (print | println) '(' <text> ')' ';'
-    private void procPrint () throws IOException{
+    private PrintCommand procPrint () throws IOException{
         if (this.current.type == TokenType.PRINT){
             this.matchToken (TokenType.PRINT);
         }
@@ -106,11 +111,12 @@ public class SyntaticalAnalysis {
         this.matchToken (TokenType.PAR_OPEN);
         this.procText();
         this.matchToken (TokenType.PAR_CLOSE);
-        this.matchToken (TokenType.DOT_COMMA);        
+        this.matchToken (TokenType.DOT_COMMA);    
+        return null;    
     }
     
     // <if> ::= if <boolexpr> '{' <statements> '}' [else '{' <statements> '}']
-    private void procIf () throws IOException{
+    private IfCommand procIf () throws IOException{
         this.matchToken (TokenType.IF);
         this.procBoolExpr();
         this.matchToken (TokenType.CBRA_OPEN);
@@ -123,22 +129,24 @@ public class SyntaticalAnalysis {
             this.procStatements ();
             this.matchToken (TokenType.CBRA_CLOSE);
         }
+        return null;
     }
     
     
     //<while> ::= while <boolexpr> '{' <statements> '}'
-    private void procWhile () throws IOException{
+    private WhileCommand procWhile () throws IOException{
         this.matchToken (TokenType.WHILE);
         this.procBoolExpr();
         this.matchToken (TokenType.CBRA_OPEN);
         this.procStatements();
         this.matchToken (TokenType.CBRA_CLOSE);
+        return null;
     }
     
     // <text> ::= (<string> | <expr>) { ‘.’ (<string> | <expr>) }
-    private void procText () throws IOException{
+    private StringValue procText () throws IOException{
         if(this.current.type == TokenType.STRING){
-            this.matchToken(TokenType.STRING);
+            this.procString();
         }
         else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
             this.procExpr();
@@ -150,7 +158,7 @@ public class SyntaticalAnalysis {
         while(this.current.type == TokenType.COMMA){
             this.matchToken(TokenType.COMMA);
             if(this.current.type == TokenType.STRING){
-                this.matchToken(TokenType.STRING);
+                this.procString();
             }
             else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
                 this.procExpr();
@@ -159,10 +167,11 @@ public class SyntaticalAnalysis {
                 this.showError();
             }
         }
+        return null;
     }
     
     // <boolexpr> ::= <expr> <boolop> <expr> { (and | or) <boolexpr> }
-    private void procBoolExpr() throws IOException{
+    private BoolValue procBoolExpr() throws IOException{
         this.procExpr();
         this.procBoolOp();
         this.procExpr();
@@ -175,10 +184,11 @@ public class SyntaticalAnalysis {
             
             this.procBoolExpr();
         }
+        return null;
     }
     
     //<boolop> ::= '==' | '!=' | '<' | '>' | '<=' | '>='
-    private void procBoolOp() throws IOException{
+    private RelOp procBoolOp() throws IOException{
         if(this.current.type == TokenType.EQUAL){
             this.matchToken(TokenType.EQUAL);
         }
@@ -197,12 +207,13 @@ public class SyntaticalAnalysis {
         else if(this.current.type == TokenType.HIGHER_EQ){
             this.matchToken(TokenType.HIGHER_EQ);
         }
-        else //talvez
+        else
             this.showError();
+        return null;
     }
     
     //<expr> ::= <term> [ ('+' | '-') <term> ]
-    private void procExpr() throws IOException{
+    private Value<?> procExpr() throws IOException{
         this.procTerm();
         if (this.current.type == TokenType.PLUS){
             this.matchToken (TokenType.PLUS);
@@ -218,7 +229,7 @@ public class SyntaticalAnalysis {
     }
     
     // <term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
-    private void procTerm () throws IOException{
+    private Value<?> procTerm () throws IOException{
         this.procFactor();
         if(this.current.type == TokenType.MUL || this.current.type == TokenType.DIV || this.current.type == TokenType.MOD){
             if(this.current.type == TokenType.MUL)
@@ -237,17 +248,17 @@ public class SyntaticalAnalysis {
     }
     
     //<factor> ::= [‘+’ | ‘-‘] <number> | <load> | <value> | '(' <expr> ')'
-    private void procFactor() throws IOException{     
+    private Value<?> procFactor() throws IOException{     
         if (this.current.type == TokenType.PLUS){
             this.matchToken(TokenType.PLUS);
-            this.matchToken(TokenType.NUMBER);
+            this.procNumber();
         }
         else if (this.current.type == TokenType.MINUS){
             this.matchToken(TokenType.MINUS);
-            this.matchToken(TokenType.NUMBER);
+            this.procNumber();
         }
         else if (this.current.type == TokenType.NUMBER){
-            this.matchToken(TokenType.NUMBER);
+            this.procNumber();
         }
         else if (this.current.type == TokenType.LOAD){
             this.procLoad();
@@ -266,19 +277,20 @@ public class SyntaticalAnalysis {
         else {
             this.showError();
         }
-        
+        return null;
     }
     
     // <load> ::= load '(' <text> ')'
-    private void procLoad () throws IOException {
+    private LoadIntValue procLoad () throws IOException {
         this.matchToken (TokenType.LOAD);
         this.matchToken (TokenType.PAR_OPEN);
         this.procText();
         this.matchToken (TokenType.PAR_CLOSE);
+        return null;
     }
 
     //<value> ::= (<new> | <var>) { '.' <array> } [ '.' <int> ]
-    private void procValue() throws IOException{
+    private Value<?> procValue() throws IOException{
         if(this.current.type == TokenType.NEW){
             this.procNew();
         }
@@ -297,7 +309,7 @@ public class SyntaticalAnalysis {
     }
     
     //<new> ::= new (<nzero> | <nrand> | <nfill>)
-    private void procNew () throws IOException{
+    private ArrayValue procNew () throws IOException{
         this.matchToken(TokenType.NEW);
         if (this.current.type == TokenType.ZERO){
             this.procNzero();
@@ -311,36 +323,40 @@ public class SyntaticalAnalysis {
         else {
             this.showError ();
         }
+        return null;
     }
     
     //<nzero> ::= zero '[' <expr> ']'
-    private void procNzero() throws IOException{
+    private ZeroArrayValue procNzero() throws IOException{
         this.matchToken (TokenType.ZERO);
         this.matchToken (TokenType.SBRA_OPEN);
         this.procExpr();
         this.matchToken (TokenType.SBRA_CLOSE);
+        return null;
     }
     
     //<nrand> ::= rand '[' <expr> ']'
-    private void procNrand() throws IOException{
+    private RandArrayValue procNrand() throws IOException{
         this.matchToken(TokenType.RAND);
         this.matchToken(TokenType.SBRA_OPEN);
         this.procExpr();
         this.matchToken(TokenType.SBRA_CLOSE);
+        return null;
     }
     
     //<nfill> ::= fill '[' <expr> ',' <expr> ']'
-    private void procNfill () throws IOException{
+    private FillArrayValue procNfill () throws IOException{
         this.matchToken (TokenType.FILL);
         this.matchToken (TokenType.SBRA_OPEN);
         this.procExpr();
         this.matchToken (TokenType.COMMA);
         this.procExpr();
         this.matchToken (TokenType.SBRA_CLOSE);
+        return null;
     }
 
     //<array> ::= <show> | <sort> | <add> | <set> | <filter> | <remove> | <each> | <apply>
-    private void procArray () throws IOException{
+    private ArrayValue procArray () throws IOException{
         if(this.current.type == TokenType.SHOW){
             this.procShow();
         }
@@ -367,17 +383,19 @@ public class SyntaticalAnalysis {
         }
         else
             this.showError();
+        return null;
     }
     
     //<show> ::= show '(' ')'
-    private void procShow () throws IOException{
+    private ShowArrayValue procShow () throws IOException{
         this.matchToken (TokenType.SHOW);
         this.matchToken (TokenType.PAR_OPEN);
-        this.matchToken (TokenType.PAR_CLOSE);        
+        this.matchToken (TokenType.PAR_CLOSE);  
+        return null;      
     }
     
     //<sort> ::= sort '(' ')'
-    private void procSort() throws IOException{
+    private SortArrayValue procSort() throws IOException{
         if(this.current.type == TokenType.SORT){
             this.matchToken(TokenType.SORT);
             this.matchToken(TokenType.PAR_OPEN);
@@ -385,18 +403,21 @@ public class SyntaticalAnalysis {
         }
         else
             this.showError();
+        
+        return null;
     }
     
     //<add> ::= add '(' <expr> ')'
-    private void procAdd () throws IOException{
+    private AddArrayValue procAdd () throws IOException{
         this.matchToken (TokenType.ADD);
         this.matchToken (TokenType.PAR_OPEN);
         this.procExpr();
         this.matchToken (TokenType.PAR_CLOSE);
+        return null;
     }
     
     //<set> ::= set '(' <expr> ',' <expr> ')'
-    private void procSet() throws IOException{
+    private SetArrayValue procSet() throws IOException{
         if(this.current.type == TokenType.SET){
             this.matchToken(TokenType.SET);
             this.matchToken(TokenType.PAR_OPEN);
@@ -409,74 +430,95 @@ public class SyntaticalAnalysis {
                 this.showError();
             this.matchToken(TokenType.PAR_CLOSE);
         }
+        return null;
     }
     
     //<filter> ::= filter '(' <var> '->' <boolexpr> ')'
-    private void procFilter () throws IOException{
+    private FilterArrayValue procFilter () throws IOException{
         this.matchToken (TokenType.FILTER);
         this.matchToken (TokenType.PAR_OPEN);
         this.procVar();
         this.matchToken (TokenType.ARROW);
         this.procBoolExpr();
         this.matchToken (TokenType.PAR_CLOSE);
+        return null;
     }
     
     //<remove> ::= remove '(' <var> '->' <boolexpr> ')'
-    private void procRemove () throws IOException{
+    private RemoveArrayValue procRemove () throws IOException{
         this.matchToken(TokenType.REMOVE);
         this.matchToken(TokenType.PAR_OPEN);
         this.procVar();
         this.matchToken(TokenType.ARROW);
         this.procBoolExpr();
         this.matchToken(TokenType.PAR_CLOSE);
+        return null;
     }
     
     //<each> ::= each '(' <var> '->' <statements> ')'
-    private void procEach () throws IOException{
+    private EachArrayValue procEach () throws IOException{
         this.matchToken (TokenType.EACH);
         this.matchToken (TokenType.PAR_OPEN);
         this.procVar();
         this.matchToken (TokenType.ARROW);
         this.procStatements();
         this.matchToken (TokenType.PAR_CLOSE);
+        return null;
     }
     
     //<apply> ::= apply '(' <var> '->' <statements> ')'
-    private void procApply () throws IOException{
+    private ApplyArrayValue procApply () throws IOException{
         this.matchToken(TokenType.APPLY);
         this.matchToken(TokenType.PAR_OPEN);
         this.procVar();
         this.matchToken(TokenType.ARROW);
         this.procStatements();
         this.matchToken(TokenType.PAR_CLOSE);
+        return null;
     }
     
     //<int> ::= <at> | <size>
-    private void procInt() throws IOException{
+    private IntValue procInt() throws IOException{
         if (this.current.type == TokenType.AT)
             this.procAt();
         else if (this.current.type == TokenType.SIZE)
             this.procSize();
         else
             this.showError();
+        return null;
     }
     
     //<at> ::= at '(' <expr> ')'
-    private void procAt() throws IOException{
+    private AtIntValue procAt() throws IOException{
         this.matchToken(TokenType.AT);
         this.matchToken(TokenType.PAR_OPEN);
         this.procExpr();
         this.matchToken(TokenType.PAR_CLOSE);
+        return null;
     }
     
     //<size> ::= size '(' ')'
-    private void procSize() throws IOException{
+    private SizeIntValue procSize() throws IOException{
         this.matchToken (TokenType.SIZE);
         this.matchToken (TokenType.PAR_OPEN);
         this.matchToken (TokenType.PAR_CLOSE);
+        return null;
     }
 
-    private void procVar() throws IOException {
+    private Variable procVar() throws IOException {
         this.matchToken(TokenType.VAR);
+        return null;
+    }
+    
+    private ConstIntValue procNumber () throws IOException{
+        /// trocar
+        this.matchToken(TokenType.NUMBER);
+        return null;
+    }    
+    
+    private ConstStringValue procString () throws IOException{
+        /// trocar
+        this.matchToken(TokenType.STRING);
+        return null;
     }
 }

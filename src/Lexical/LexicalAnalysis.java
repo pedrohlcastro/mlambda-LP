@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PushbackInputStream;
 
 public class LexicalAnalysis implements AutoCloseable {
-    // FAZER CONTA LINHAS
     private int line;
     private PushbackInputStream input;
     private SymbolTable st = new SymbolTable();
@@ -50,11 +49,11 @@ public class LexicalAnalysis implements AutoCloseable {
                         lex.token += (char) c;
                         e = 3;
                     }
-                    else if (c == '!'){
+                    else if (c == '!' || c == '='){
                         lex.token += (char) c;
                         e = 4;
                     }
-                    else if(c == '<' || c == '=' || c == '>'){
+                    else if(c == '<' || c == '>'){
                         lex.token += (char) c;
                         e = 5;
                     }
