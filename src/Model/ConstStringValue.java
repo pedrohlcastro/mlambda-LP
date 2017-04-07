@@ -1,15 +1,15 @@
 package Model;
 
 public class ConstStringValue extends StringValue{
-    private String text;
+    private String value;
 
-    public ConstStringValue(String text, int line) {
+    public ConstStringValue(String value, int line) {
         super(line);
-        this.text = text;
+        this.value = value;
     }
 
     @Override
     public String value() {
-        return this.text;
+        return this.value;
     }
 }

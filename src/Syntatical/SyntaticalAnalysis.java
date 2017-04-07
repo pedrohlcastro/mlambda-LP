@@ -226,6 +226,7 @@ public class SyntaticalAnalysis {
         //else {
         //    this.showError();
         //}   
+        return null;
     }
     
     // <term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
@@ -245,6 +246,7 @@ public class SyntaticalAnalysis {
             this.procFactor();
 
         }
+        return null;
     }
     
     //<factor> ::= [‘+’ | ‘-‘] <number> | <load> | <value> | '(' <expr> ')'
@@ -306,6 +308,7 @@ public class SyntaticalAnalysis {
             else 
                 this.procArray();
         }
+        return null;
     }
     
     //<new> ::= new (<nzero> | <nrand> | <nfill>)
@@ -467,7 +470,7 @@ public class SyntaticalAnalysis {
     }
     
     //<apply> ::= apply '(' <var> '->' <statements> ')'
-    private ApplyArrayValue procApply () throws IOException{
+    private ApplyEachValue procApply () throws IOException{
         this.matchToken(TokenType.APPLY);
         this.matchToken(TokenType.PAR_OPEN);
         this.procVar();
@@ -489,7 +492,7 @@ public class SyntaticalAnalysis {
     }
     
     //<at> ::= at '(' <expr> ')'
-    private AtIntValue procAt() throws IOException{
+    private AtArrayIntValue procAt() throws IOException{
         this.matchToken(TokenType.AT);
         this.matchToken(TokenType.PAR_OPEN);
         this.procExpr();
@@ -498,7 +501,7 @@ public class SyntaticalAnalysis {
     }
     
     //<size> ::= size '(' ')'
-    private SizeIntValue procSize() throws IOException{
+    private SizeArrayIntValue procSize() throws IOException{
         this.matchToken (TokenType.SIZE);
         this.matchToken (TokenType.PAR_OPEN);
         this.matchToken (TokenType.PAR_CLOSE);
