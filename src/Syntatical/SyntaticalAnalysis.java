@@ -14,9 +14,10 @@ public class SyntaticalAnalysis {
         this.current = lex.nextToken();
     }
     
-    public void init () throws IOException{
-        this.procStatements();
+    public Command init () throws IOException{
+        Command c = this.procStatements();
         this.matchToken(TokenType.END_OF_FILE);
+        return c;
     }
     
     private void showError() {
@@ -46,26 +47,30 @@ public class SyntaticalAnalysis {
     }
     
     //<statements> ::= <cmd>  { <cmd> }
-    private CommandBlock procStatements () throws IOException {
-        this.procCmd();
+    private Command procStatements () throws IOException {
+        CommandBlock cb = new CommandBlock();
+        Command c = this.procCmd();
+        cb.addCommand(c);
         while (this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER
                 || this.current.type == TokenType.LOAD || this.current.type == TokenType.NEW || this.current.type == TokenType.VAR
                 || this.current.type == TokenType.PAR_OPEN || this.current.type == TokenType.PRINT || this.current.type == TokenType.PRINTLN
                 || this.current.type == TokenType.IF || this.current.type == TokenType.WHILE){
-            this.procCmd();
+            c = this.procCmd();
+            cb.addCommand(c);
         }
-        return null;
+        return cb;
     }
     
     //<cmd> ::= <assign> | <print> | <if> | <while>
     private Command procCmd () throws IOException{
+        Command c = null;
         if (this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER
                 || this.current.type == TokenType.LOAD || this.current.type == TokenType.NEW || this.current.type == TokenType.VAR
                 || this.current.type == TokenType.PAR_OPEN){
             this.procAssign();
         }
         else if (this.current.type == TokenType.PRINT || this.current.type == TokenType.PRINTLN){
-            this.procPrint();
+            c = this.procPrint();
         }
         else if (this.current.type == TokenType.IF){
             this.procIf();
@@ -76,8 +81,7 @@ public class SyntaticalAnalysis {
         else {
             this.showError();
         }
-        
-        return null;
+        return c;
     }
     
     //<assign> ::= <expr> [ ':' <var> {‘,’ <var> } ] ';'
@@ -98,21 +102,26 @@ public class SyntaticalAnalysis {
     
     //<print> ::= (print | println) '(' <text> ')' ';'
     private PrintCommand procPrint () throws IOException{
+        int line = lex.line();
+        boolean newLine = false;
         if (this.current.type == TokenType.PRINT){
+            newLine = false;
             this.matchToken (TokenType.PRINT);
         }
         else if (this.current.type == TokenType.PRINTLN){
-            matchToken(TokenType.PRINTLN);
+            newLine = true;
+            this.matchToken(TokenType.PRINTLN);
         }
         else {
             this.showError();
         }
         
         this.matchToken (TokenType.PAR_OPEN);
-        this.procText();
+        Value<?> v = this.procText();
         this.matchToken (TokenType.PAR_CLOSE);
         this.matchToken (TokenType.DOT_COMMA);    
-        return null;    
+        PrintCommand pc = new PrintCommand(v, newLine, line);
+        return pc;    
     }
     
     // <if> ::= if <boolexpr> '{' <statements> '}' [else '{' <statements> '}']
@@ -144,12 +153,16 @@ public class SyntaticalAnalysis {
     }
     
     // <text> ::= (<string> | <expr>) { ‘.’ (<string> | <expr>) }
-    private StringValue procText () throws IOException{
+    //    private StringValue procText () throws IOException{
+    private Value<?> procText () throws IOException{
+        Value <?> v;
         if(this.current.type == TokenType.STRING){
-            this.procString();
+            v = this.procString();
+            return v;
         }
         else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-            this.procExpr();
+            v = this.procExpr();
+            return v;
         }
         else{
             this.showError();
@@ -515,14 +528,17 @@ public class SyntaticalAnalysis {
     }
     
     private ConstIntValue procNumber () throws IOException{
-        /// trocar
+        int line = lex.line();
+        ConstIntValue civ = new ConstIntValue(Integer.parseInt(current.token), line);
         this.matchToken(TokenType.NUMBER);
-        return null;
+        return civ;
     }    
     
     private ConstStringValue procString () throws IOException{
-        /// trocar
+        int line = lex.line();
+        String text = current.token;
         this.matchToken(TokenType.STRING);
-        return null;
+        ConstStringValue csv = new ConstStringValue (text, line);
+        return csv;
     }
 }

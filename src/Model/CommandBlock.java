@@ -14,7 +14,7 @@ public class CommandBlock extends Command {
     public void addCommand (Command c){
         this.commands.add(c);
     }
-
+    
     @Override
     public void execute() {
         for (Command c: commands){

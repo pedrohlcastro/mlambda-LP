@@ -13,14 +13,18 @@ public class PrintCommand extends Command{
     @Override
     public void execute() {
         String text = "";
-        // completar para outros tipos
         if (value instanceof StringValue){
             StringValue sv = (StringValue) value;
             text = sv.value();
         }
         else if (value instanceof IntValue){
+            System.out.println("oi");
+
             IntValue iv = (IntValue) value;
-            text = String.valueOf(iv.value());
+            int n = iv.value();
+            text = "" + n;
+            System.out.println(n);
+            //text = String.valueOf(iv.value());
         }
         else if (value instanceof ArrayValue){
             ArrayValue av = (ArrayValue) value;
@@ -34,6 +38,4 @@ public class PrintCommand extends Command{
         if (newline)
             System.out.println();
     }
-    
-    
 }

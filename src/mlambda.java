@@ -1,8 +1,6 @@
-import Lexical.Lexeme;
-import Lexical.LexicalAnalysis;
-import Lexical.TokenType;
-import Lexical.LexicalException;
-import Syntatical.SyntaticalAnalysis;
+import Lexical.*;
+import Model.*;
+import Syntatical.*;
 
 public class mlambda {
 
@@ -14,9 +12,9 @@ public class mlambda {
 
         try (LexicalAnalysis l = new LexicalAnalysis(args[0])) {
             SyntaticalAnalysis s = new SyntaticalAnalysis(l);
-            s.init();
-            
-//            Lexeme lex;
+            Command c = s.init();
+            c.execute();
+//            Lexeme' lex;
 //            while (checkType((lex = l.nextToken()).type)) {
 //                System.out.printf("(\"%s\", %s)\n", lex.token, lex.type);
 //            }

@@ -14,7 +14,7 @@ public abstract class Variable extends Value {
         return name;
     }
 
-    public void setValue(Value value) {
+    public void setValue(Value value){
         this.value = value;
     }
     

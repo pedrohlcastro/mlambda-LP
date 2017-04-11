@@ -10,7 +10,7 @@ public class ConstIntValue extends IntValue {
 
     @Override
     public Integer value() {
-        return null;
+        return this.value;
     }
     
     
