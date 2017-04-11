@@ -1,5 +1,10 @@
 package Model;
 
-public class RelOp {
-    
+public enum RelOp {
+    Equal,
+    NotEqual,
+    LowerThan,
+    LowerEqual,
+    GreaterThan,
+    GreaterEqual
 }

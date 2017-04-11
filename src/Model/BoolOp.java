@@ -1,5 +1,6 @@
 package Model;
 
-class BoolOp {
-    
+public enum BoolOp {
+    And,
+    Or
 }

@@ -227,24 +227,28 @@ public class SyntaticalAnalysis {
     
     //<expr> ::= <term> [ ('+' | '-') <term> ]
     private Value<?> procExpr() throws IOException{
-        this.procTerm();
-        if (this.current.type == TokenType.PLUS){
-            this.matchToken (TokenType.PLUS);
-            this.procTerm();
+        Value<?> v1 = this.procTerm();
+        int line = lex.line();
+        if (this.current.type == TokenType.PLUS ||  this.current.type == TokenType.MINUS){
+            IntOp io;
+            if (this.current.type == TokenType.PLUS) {
+                this.matchToken (TokenType.PLUS);
+                io = IntOp.Add;
+            } else {
+                this.matchToken (TokenType.MINUS);
+                io = IntOp.Sub;
+            }
+            Value<?> v2 = this.procTerm();
+            
+            DualIntExpr die = new DualIntExpr(io, v1, v2, line);
+            return die;
         }
-        else if (this.current.type == TokenType.MINUS){
-            this.matchToken(TokenType.MINUS);
-            this.procTerm();
-        }
-        //else {
-        //    this.showError();
-        //}   
-        return null;
+        return v1;
     }
     
     // <term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
     private Value<?> procTerm () throws IOException{
-        this.procFactor();
+        Value<?> v1 = this.procFactor();
         if(this.current.type == TokenType.MUL || this.current.type == TokenType.DIV || this.current.type == TokenType.MOD){
             if(this.current.type == TokenType.MUL)
                 this.matchToken(TokenType.MUL);
@@ -256,25 +260,25 @@ public class SyntaticalAnalysis {
             else{
                 this.showError();
             }
-            this.procFactor();
+            Value<?> v2 = this.procFactor();
 
         }
-        return null;
+        return v1;
     }
     
     //<factor> ::= [‘+’ | ‘-‘] <number> | <load> | <value> | '(' <expr> ')'
     private Value<?> procFactor() throws IOException{     
         if (this.current.type == TokenType.PLUS){
             this.matchToken(TokenType.PLUS);
-            this.procNumber();
+            return this.procNumber();
         }
         else if (this.current.type == TokenType.MINUS){
             this.matchToken(TokenType.MINUS);
-            this.procNumber();
+            return this.procNumber();
         }
         else if (this.current.type == TokenType.NUMBER){
             //matchToken (TokenType.NUMBER);
-            this.procNumber();
+            return this.procNumber();
         }
         else if (this.current.type == TokenType.LOAD){
             this.procLoad();
@@ -529,8 +533,9 @@ public class SyntaticalAnalysis {
     
     private ConstIntValue procNumber () throws IOException{
         int line = lex.line();
-        ConstIntValue civ = new ConstIntValue(Integer.parseInt(current.token), line);
+        String s = current.token;
         this.matchToken(TokenType.NUMBER);
+        ConstIntValue civ = new ConstIntValue(Integer.parseInt(s), line);
         return civ;
     }    
     

@@ -1,5 +1,9 @@
 package Model;
 
-public class IntOp{
-    
+public enum IntOp {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod
 }
