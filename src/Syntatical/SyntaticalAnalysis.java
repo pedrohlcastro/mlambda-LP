@@ -260,6 +260,7 @@ public class SyntaticalAnalysis {
             this.procNumber();
         }
         else if (this.current.type == TokenType.NUMBER){
+            //matchToken (TokenType.NUMBER);
             this.procNumber();
         }
         else if (this.current.type == TokenType.LOAD){
