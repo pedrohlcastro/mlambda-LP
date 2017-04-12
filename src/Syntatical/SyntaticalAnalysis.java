@@ -249,19 +249,27 @@ public class SyntaticalAnalysis {
     // <term> ::= <factor> [ ('*' | '/' | '%') <factor> ]
     private Value<?> procTerm () throws IOException{
         Value<?> v1 = this.procFactor();
+        int line = lex.line();
         if(this.current.type == TokenType.MUL || this.current.type == TokenType.DIV || this.current.type == TokenType.MOD){
-            if(this.current.type == TokenType.MUL)
+            IntOp io = null;
+            if(this.current.type == TokenType.MUL){
                 this.matchToken(TokenType.MUL);
-            else if(this.current.type == TokenType.DIV)
+                io = IntOp.Mul;
+            }
+            else if(this.current.type == TokenType.DIV){
                 this.matchToken(TokenType.DIV);
+                io = IntOp.Div;
+            }
             else if(this.current.type == TokenType.MOD){
-                this.matchToken(TokenType.MOD);                     
+                this.matchToken(TokenType.MOD); 
+                io = IntOp.Mod;                    
             }
             else{
                 this.showError();
             }
             Value<?> v2 = this.procFactor();
-
+            DualIntExpr die = new DualIntExpr(io, v1, v2, line);
+            return die;
         }
         return v1;
     }
@@ -277,7 +285,6 @@ public class SyntaticalAnalysis {
             return this.procNumber();
         }
         else if (this.current.type == TokenType.NUMBER){
-            //matchToken (TokenType.NUMBER);
             return this.procNumber();
         }
         else if (this.current.type == TokenType.LOAD){

@@ -1,1 +1,1 @@
-println(8-2);
+println(8/2);
