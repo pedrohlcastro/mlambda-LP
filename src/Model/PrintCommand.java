@@ -12,7 +12,16 @@ public class PrintCommand extends Command{
 
     @Override
     public void execute() {
+        //System.out.printf("Executando: %s\n", this.value);
         String text = "";
+        
+        //Value<?> value = (this.value instanceof Variable) ? ((Variable) this.value).value() : this.value;
+        Value<?> value = this.value;
+        if (value instanceof Variable){
+           value = ((Variable) value).value();
+            //       System.out.printf("Executando %s\n", value);
+        }
+        
         if (value instanceof StringValue){
             StringValue sv = (StringValue) value;
             text = sv.value();
@@ -24,8 +33,7 @@ public class PrintCommand extends Command{
         }
         else if (value instanceof ArrayValue){
             ArrayValue av = (ArrayValue) value;
-            //text = Array.(av.value());
-
+            
         }
         else{
             // erro semantico

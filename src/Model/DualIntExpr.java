@@ -15,22 +15,26 @@ public class DualIntExpr extends IntValue{
     @Override
     public Integer value() {
         int value = 0;
-        ConstIntValue left = (ConstIntValue) this.left;
-        ConstIntValue right = (ConstIntValue) this.right;
+        //ConstIntValue left = (ConstIntValue) this.left;
+        //ConstIntValue right = (ConstIntValue) this.right;
+        
+        Value<?> left = (this.left instanceof Variable) ? ((Variable) this.left).value() : this.left;
+        Value<?> right = (this.right instanceof Variable) ? ((Variable) this.right).value() : this.right;
+        
         if (op == IntOp.Add){
-            value = left.value() + right.value();
+            value = ((Integer)left.value()) + ((Integer)right.value());
         }
         else if(op == IntOp.Sub){
-            value = left.value() - right.value();
+            value = ((Integer)left.value())- ((Integer)right.value());
         }
         else if(op == IntOp.Div){
-            value = left.value() / right.value();
+            value = ((Integer)left.value()) / ((Integer)right.value());
         }
         else if(op == IntOp.Mod){
-            value = left.value() % right.value();
+            value = ((Integer)left.value()) % ((Integer)right.value());
         }
         else if(op == IntOp.Mul){
-            value = left.value() * right.value();
+            value = ((Integer)left.value()) * ((Integer)right.value());
         }
         return value;
     }

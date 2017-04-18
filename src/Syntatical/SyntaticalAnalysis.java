@@ -4,6 +4,10 @@ import Lexical.LexicalAnalysis;
 import Lexical.TokenType;
 import java.io.IOException;
 import Model.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SyntaticalAnalysis {
     private Lexeme current;
@@ -67,7 +71,7 @@ public class SyntaticalAnalysis {
         if (this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER
                 || this.current.type == TokenType.LOAD || this.current.type == TokenType.NEW || this.current.type == TokenType.VAR
                 || this.current.type == TokenType.PAR_OPEN){
-            this.procAssign();
+            c = this.procAssign();
         }
         else if (this.current.type == TokenType.PRINT || this.current.type == TokenType.PRINTLN){
             c = this.procPrint();
@@ -86,18 +90,22 @@ public class SyntaticalAnalysis {
     
     //<assign> ::= <expr> [ ':' <var> {‘,’ <var> } ] ';'
     private AssignCommand procAssign () throws IOException{
-        this.procExpr();
-        
+        Value<?> value = this.procExpr();
+        int line = this.lex.line();
+        AssignCommand ac = new AssignCommand(value, line);
+        Variable v;
         if (this.current.type == TokenType.SEMI_COLON){
             this.matchToken(TokenType.SEMI_COLON);
-            this.procVar();
+            v = this.procVar();
+            ac.addVariable(v);
             while (this.current.type == TokenType.COMMA){
                 this.matchToken(TokenType.COMMA);
-                this.procVar();
+                v = this.procVar();
+                ac.addVariable(v);
             }
         }
         this.matchToken (TokenType.DOT_COMMA);
-        return null;
+        return ac;
     }
     
     //<print> ::= (print | println) '(' <text> ')' ';'
@@ -294,7 +302,7 @@ public class SyntaticalAnalysis {
             this.procValue();
         }
         else if (this.current.type == TokenType.VAR){
-            this.procValue();
+            return this.procValue();
         }
         else if (this.current.type == TokenType.PAR_OPEN){
             this.matchToken(TokenType.PAR_OPEN);
@@ -322,7 +330,8 @@ public class SyntaticalAnalysis {
             this.procNew();
         }
         else if(this.current.type == TokenType.VAR){
-            this.procVar();
+            // FIXME: me mover pra baixo.
+            return this.procVar();
         }
         while(this.current.type == TokenType.DOT){
             this.matchToken(TokenType.DOT);
@@ -532,10 +541,19 @@ public class SyntaticalAnalysis {
         this.matchToken (TokenType.PAR_CLOSE);
         return null;
     }
-
+    
+    private Map <String, Variable> vars = new HashMap <String, Variable>();
     private Variable procVar() throws IOException {
+        String n = this.current.token;
         this.matchToken(TokenType.VAR);
-        return null;
+        Variable v;
+        if (vars.containsKey(n))
+            v = vars.get(n);
+        else {
+            v = new Variable (n);
+            vars.put(n, v);
+        }
+        return v;
     }
     
     private ConstIntValue procNumber () throws IOException{

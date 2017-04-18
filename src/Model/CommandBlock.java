@@ -12,6 +12,7 @@ public class CommandBlock extends Command {
     }
     
     public void addCommand (Command c){
+        //System.out.println("comando c: " + c);
         this.commands.add(c);
     }
     
