@@ -19,6 +19,11 @@ public class IfCommand extends Command{
     }
     
     @Override
-    public void execute(){}
+    public void execute(){
+        if(expr.value())
+            this.then.execute();
+        else
+            this.elses.execute();
+    }
     
 }

@@ -77,10 +77,10 @@ public class SyntaticalAnalysis {
             c = this.procPrint();
         }
         else if (this.current.type == TokenType.IF){
-            this.procIf();
+            c = this.procIf();
         }
         else if (this.current.type == TokenType.WHILE){
-            this.procWhile();
+            c = this.procWhile();
         }
         else {
             this.showError();
@@ -134,30 +134,38 @@ public class SyntaticalAnalysis {
     
     // <if> ::= if <boolexpr> '{' <statements> '}' [else '{' <statements> '}']
     private IfCommand procIf () throws IOException{
+        IfCommand ic;
+        Command c,c1;
+        int line = this.lex.line();
         this.matchToken (TokenType.IF);
-        this.procBoolExpr();
+        BoolValue bv = this.procBoolExpr();
         this.matchToken (TokenType.CBRA_OPEN);
-        this.procStatements();
+        c = this.procStatements();
         this.matchToken (TokenType.CBRA_CLOSE);
         
         if (this.current.type == TokenType.ELSE){
             this.matchToken (TokenType.ELSE);
             this.matchToken (TokenType.CBRA_OPEN);
-            this.procStatements ();
+            c1 = this.procStatements ();
             this.matchToken (TokenType.CBRA_CLOSE);
+            ic = new IfCommand(bv, c, c1, line);
+            return ic;
         }
-        return null;
+        ic = new IfCommand(bv, c, line);
+        return ic;
     }
     
     
     //<while> ::= while <boolexpr> '{' <statements> '}'
     private WhileCommand procWhile () throws IOException{
+        int line = this.lex.line();
         this.matchToken (TokenType.WHILE);
-        this.procBoolExpr();
+        BoolValue bv = this.procBoolExpr();
         this.matchToken (TokenType.CBRA_OPEN);
-        this.procStatements();
+        Command c = this.procStatements();
         this.matchToken (TokenType.CBRA_CLOSE);
-        return null;
+        WhileCommand wc =  new WhileCommand(bv,c,line);
+        return wc;
     }
     
     // <text> ::= (<string> | <expr>) { ‘.’ (<string> | <expr>) }
@@ -193,44 +201,62 @@ public class SyntaticalAnalysis {
     
     // <boolexpr> ::= <expr> <boolop> <expr> { (and | or) <boolexpr> }
     private BoolValue procBoolExpr() throws IOException{
-        this.procExpr();
-        this.procBoolOp();
-        this.procExpr();
-        
+        Value<?> v1 = this.procExpr();
+        RelOp ro = this.procBoolOp();
+        Value<?> v2 = this.procExpr();
+        BoolOp bo = null;
+        DualBoolExpr dbe = null;
+        int line = this.lex.line();
+        CompareBoolValue cbv = new CompareBoolValue(ro,v1,v2,line);
+
         while (this.current.type == TokenType.AND || this.current.type == TokenType.OR){
-            if (this.current.type == TokenType.AND)
-                this.matchToken (TokenType.AND);
-            else if (this.current.type == TokenType.OR)
-                this.matchToken (TokenType.OR);
             
-            this.procBoolExpr();
+            if (this.current.type == TokenType.AND){
+                this.matchToken (TokenType.AND);
+                bo = BoolOp.And;
+            }
+            else if (this.current.type == TokenType.OR){
+                this.matchToken (TokenType.OR);
+                bo = BoolOp.Or;
+            }
+            
+            BoolValue bv = this.procBoolExpr();
+            dbe= new DualBoolExpr(bo, cbv, bv, line);
+            return dbe;
         }
-        return null;
+        return cbv;
     }
     
     //<boolop> ::= '==' | '!=' | '<' | '>' | '<=' | '>='
     private RelOp procBoolOp() throws IOException{
+        RelOp ro = null;
         if(this.current.type == TokenType.EQUAL){
             this.matchToken(TokenType.EQUAL);
+            ro = RelOp.Equal;
         }
         else if(this.current.type == TokenType.DIFF){
             this.matchToken(TokenType.DIFF);
+            ro = RelOp.NotEqual;
         }
         else if(this.current.type == TokenType.LOWER){
             this.matchToken(TokenType.LOWER);
+            ro = RelOp.LowerThan;
         }
         else if(this.current.type == TokenType.HIGHER){
             this.matchToken(TokenType.HIGHER);
+            ro = RelOp.GreaterThan;
         }
         else if(this.current.type == TokenType.LOWER_EQ){
             this.matchToken(TokenType.LOWER_EQ);
+            ro = RelOp.LowerEqual;
         }
         else if(this.current.type == TokenType.HIGHER_EQ){
             this.matchToken(TokenType.HIGHER_EQ);
+            ro = RelOp.GreaterEqual;
         }
         else
             this.showError();
-        return null;
+        return ro;
     }
     
     //<expr> ::= <term> [ ('+' | '-') <term> ]

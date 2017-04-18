@@ -12,5 +12,7 @@ public class WhileCommand extends Command{
 
     @Override
     public void execute() {
+        while(expr.value())
+            cmd.execute();
     }
 }

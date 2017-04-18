@@ -14,6 +14,12 @@ public class DualBoolExpr extends BoolValue{
 
     @Override
     public Boolean value() {
+        switch(this.op){
+            case And:
+                return left.value() && right.value();
+            case Or:
+                return left.value() || right.value();
+        }
         return null;
     }
     

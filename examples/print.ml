@@ -1,3 +1,3 @@
 6 : b;
-1 + b : a;
-println(a);
+1 + b : b;
+println(b);

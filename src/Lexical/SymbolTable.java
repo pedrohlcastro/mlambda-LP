@@ -46,8 +46,8 @@ class SymbolTable {
         this.st.put("size", TokenType.SIZE); // size
 
         // operators
-        this.st.put("&&", TokenType.AND); // and
-        this.st.put("|", TokenType.OR); // or
+        this.st.put("and", TokenType.AND); // and
+        this.st.put("or", TokenType.OR); // or
         this.st.put("==", TokenType.EQUAL); // ==
         this.st.put("!=", TokenType.DIFF); // !=
         this.st.put("<", TokenType.LOWER); // <
