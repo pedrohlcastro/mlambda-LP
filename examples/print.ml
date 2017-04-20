@@ -1,3 +1,3 @@
-6 : b;
-1 + b : b;
+6 : b, c, d;
 println(b);
+println("oi", "oie");

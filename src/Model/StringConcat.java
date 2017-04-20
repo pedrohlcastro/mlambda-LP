@@ -9,11 +9,13 @@ public class StringConcat extends StringValue{
         this.left = left;
         this.right = right;
     }
-
     
     @Override
     public String value() {
-        return null;
+        Value<?> left = (this.left instanceof Variable) ? ((Variable) this.left).value() : this.left;
+        Value<?> right = (this.right instanceof Variable) ? ((Variable) this.right).value() : this.right;
+        
+        return (String)left.value() + (String)right.value();
     }
     
     

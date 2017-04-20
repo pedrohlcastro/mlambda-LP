@@ -103,9 +103,12 @@ public class SyntaticalAnalysis {
                 v = this.procVar();
                 ac.addVariable(v);
             }
+
         }
+
         this.matchToken (TokenType.DOT_COMMA);
         return ac;
+
     }
     
     //<print> ::= (print | println) '(' <text> ')' ';'
@@ -168,17 +171,17 @@ public class SyntaticalAnalysis {
         return wc;
     }
     
-    // <text> ::= (<string> | <expr>) { ‘.’ (<string> | <expr>) }
+    // <text> ::= (<string> | <expr>) { ‘,’ (<string> | <expr>) }
     //    private StringValue procText () throws IOException{
     private Value<?> procText () throws IOException{
-        Value <?> v;
+        int line = lex.line();
+        Value <?> v = null;
+        
         if(this.current.type == TokenType.STRING){
             v = this.procString();
-            return v;
         }
         else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
             v = this.procExpr();
-            return v;
         }
         else{
             this.showError();
@@ -187,19 +190,19 @@ public class SyntaticalAnalysis {
         while(this.current.type == TokenType.COMMA){
             this.matchToken(TokenType.COMMA);
             if(this.current.type == TokenType.STRING){
-                this.procString();
+                v = this.procString();
             }
             else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-                this.procExpr();
+                v = this.procExpr();
             }
             else{
                 this.showError();
             }
         }
-        return null;
+        return v;
     }
     
-    // <boolexpr> ::= <expr> <boolop> <expr> { (and | or) <boolexpr> }
+    // <boolexpr> ::= <expr>    <boolop> <expr> { (and | or) <boolexpr> }
     private BoolValue procBoolExpr() throws IOException{
         Value<?> v1 = this.procExpr();
         RelOp ro = this.procBoolOp();
@@ -391,9 +394,11 @@ public class SyntaticalAnalysis {
     
     //<nzero> ::= zero '[' <expr> ']'
     private ZeroArrayValue procNzero() throws IOException{
+        Value<?> v;
+        int line = lex.line();
         this.matchToken (TokenType.ZERO);
         this.matchToken (TokenType.SBRA_OPEN);
-        this.procExpr();
+        v = this.procExpr();
         this.matchToken (TokenType.SBRA_CLOSE);
         return null;
     }
