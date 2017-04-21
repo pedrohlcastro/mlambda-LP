@@ -1,7 +1,7 @@
 package Model;
 
 public class ShowArrayValue extends ArrayValue{
-    Value<?> array;
+    public Value<?> array;
 
     public ShowArrayValue(Value<?> array, int line) {
         super(line);
@@ -10,7 +10,13 @@ public class ShowArrayValue extends ArrayValue{
 
     @Override
     public Array value() {
-        return null;
+        Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
+        ArrayValue a = null;
+        if(array instanceof ArrayValue){
+            a = (ArrayValue)array;
+            a.value().show();
+        }
+        return a.value();
     }
     
 }

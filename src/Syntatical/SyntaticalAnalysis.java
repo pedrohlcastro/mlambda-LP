@@ -175,31 +175,37 @@ public class SyntaticalAnalysis {
     //    private StringValue procText () throws IOException{
     private Value<?> procText () throws IOException{
         int line = lex.line();
-        Value <?> v = null;
-        
+        Value <?> v1 = null;
+        Value <?> v2 = null;
+        StringConcat sc = null;
         if(this.current.type == TokenType.STRING){
-            v = this.procString();
+            v1 = this.procString();
         }
         else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-            v = this.procExpr();
+            v1 = this.procExpr();
         }
         else{
             this.showError();
         }
-        
+        //devia ser recursivo
         while(this.current.type == TokenType.COMMA){
             this.matchToken(TokenType.COMMA);
-            if(this.current.type == TokenType.STRING){
-                v = this.procString();
-            }
-            else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-                v = this.procExpr();
-            }
-            else{
-                this.showError();
-            }
+//            if(this.current.type == TokenType.STRING){
+//                v2 = this.procString();
+//                sc = new StringConcat(v1, v2, line);
+//            }
+//            else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+//                v2 = this.procExpr();
+//                sc = new StringConcat(v1, v2, line);
+//            }
+//            else{
+//                this.showError();
+//            }
+            v2 = this.procText();
+            sc = new StringConcat(v1, v2, line);
+            return sc;
         }
-        return v;
+        return v1;
     }
     
     // <boolexpr> ::= <expr>    <boolop> <expr> { (and | or) <boolexpr> }
@@ -325,7 +331,7 @@ public class SyntaticalAnalysis {
             return this.procNumber();
         }
         else if (this.current.type == TokenType.LOAD){
-            this.procLoad();
+            return this.procLoad();
         }
         else if (this.current.type == TokenType.NEW){
             this.procValue();
@@ -346,17 +352,21 @@ public class SyntaticalAnalysis {
     
     // <load> ::= load '(' <text> ')'
     private LoadIntValue procLoad () throws IOException {
+        Value<?> v;
+        int line = this.lex.line();
         this.matchToken (TokenType.LOAD);
         this.matchToken (TokenType.PAR_OPEN);
-        this.procText();
+        v = this.procText();
         this.matchToken (TokenType.PAR_CLOSE);
-        return null;
+        LoadIntValue ld = new LoadIntValue(v,line);
+        return ld;
     }
 
     //<value> ::= (<new> | <var>) { '.' <array> } [ '.' <int> ]
     private Value<?> procValue() throws IOException{
+        Value <?> v = null;
         if(this.current.type == TokenType.NEW){
-            this.procNew();
+            v = this.procNew();
         }
         else if(this.current.type == TokenType.VAR){
             // FIXME: me mover pra baixo.
@@ -365,42 +375,44 @@ public class SyntaticalAnalysis {
         while(this.current.type == TokenType.DOT){
             this.matchToken(TokenType.DOT);
             if (current.type == TokenType.AT || current.type == TokenType.SIZE){
-                this.procInt();
+                v = this.procInt();
                 break;
             }
             else 
-                this.procArray();
+                v = this.procArray();
         }
-        return null;
+        return v;
     }
     
     //<new> ::= new (<nzero> | <nrand> | <nfill>)
     private ArrayValue procNew () throws IOException{
+        ArrayValue a = null;
         this.matchToken(TokenType.NEW);
         if (this.current.type == TokenType.ZERO){
-            this.procNzero();
+            a = this.procNzero();
         }
         else if (this.current.type == TokenType.RAND){
-            this.procNrand();
+            a = this.procNrand();
         }
         else if (this.current.type == TokenType.FILL){
-            this.procNfill();
+            a = this.procNfill();
         }
         else {
             this.showError ();
         }
-        return null;
+        return a;
     }
     
     //<nzero> ::= zero '[' <expr> ']'
     private ZeroArrayValue procNzero() throws IOException{
         Value<?> v;
-        int line = lex.line();
+        int line = this.lex.line();
         this.matchToken (TokenType.ZERO);
         this.matchToken (TokenType.SBRA_OPEN);
         v = this.procExpr();
         this.matchToken (TokenType.SBRA_CLOSE);
-        return null;
+        ZeroArrayValue z = new ZeroArrayValue(v, line);
+        return z;
     }
     
     //<nrand> ::= rand '[' <expr> ']'
@@ -426,7 +438,7 @@ public class SyntaticalAnalysis {
     //<array> ::= <show> | <sort> | <add> | <set> | <filter> | <remove> | <each> | <apply>
     private ArrayValue procArray () throws IOException{
         if(this.current.type == TokenType.SHOW){
-            this.procShow();
+            return this.procShow();
         }
         else if(this.current.type == TokenType.SORT){
             this.procSort();
@@ -456,9 +468,11 @@ public class SyntaticalAnalysis {
     
     //<show> ::= show '(' ')'
     private ShowArrayValue procShow () throws IOException{
+        int line = this.lex.line();
         this.matchToken (TokenType.SHOW);
         this.matchToken (TokenType.PAR_OPEN);
         this.matchToken (TokenType.PAR_CLOSE);  
+        //ShowArrayValue s = new ShowArrayValue(QUM E VC,line);
         return null;      
     }
     
@@ -548,9 +562,9 @@ public class SyntaticalAnalysis {
     //<int> ::= <at> | <size>
     private IntValue procInt() throws IOException{
         if (this.current.type == TokenType.AT)
-            this.procAt();
+            return this.procAt();
         else if (this.current.type == TokenType.SIZE)
-            this.procSize();
+            return this.procSize();
         else
             this.showError();
         return null;
@@ -558,11 +572,14 @@ public class SyntaticalAnalysis {
     
     //<at> ::= at '(' <expr> ')'
     private AtArrayIntValue procAt() throws IOException{
+        Value<?> v1;
+        int line = this.lex.line();
         this.matchToken(TokenType.AT);
         this.matchToken(TokenType.PAR_OPEN);
-        this.procExpr();
+        v1 = this.procExpr();
         this.matchToken(TokenType.PAR_CLOSE);
-        return null;
+        AtArrayIntValue av = new AtArrayIntValue(v1, v1, line);
+        return av;
     }
     
     //<size> ::= size '(' ')'

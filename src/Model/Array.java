@@ -4,8 +4,9 @@ public class Array {
     private int size;
     private int array[];
     
-    public void Array (int size){
+    public Array (int size){
         this.size = size;
+        this.array = new int[this.size];
     }
     
     public int at (int index){
@@ -17,7 +18,12 @@ public class Array {
     }
     
     public void show (){
-        System.out.println(array.toString());
+        for(int i=0; i<size; i++){
+            System.out.print(array[i]+"-");
+            if(i == size-1)
+                System.out.print(array[i]);
+        }
+        System.out.println("");
     }
     
     public void set (int index, int value){
@@ -25,7 +31,6 @@ public class Array {
     }
     
     public Array sort(){
-        
         int temp;
         int[] newArray = this.array;
         for (int i = 0; i < newArray.length; i++){
@@ -46,10 +51,6 @@ public class Array {
     
     public Array add (Array array){
         return null;
-    }
-    
-    public String toString(){
-        return this.array.toString();
     }
     
 }

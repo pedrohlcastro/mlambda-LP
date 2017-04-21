@@ -15,7 +15,7 @@ public class StringConcat extends StringValue{
         Value<?> left = (this.left instanceof Variable) ? ((Variable) this.left).value() : this.left;
         Value<?> right = (this.right instanceof Variable) ? ((Variable) this.right).value() : this.right;
         
-        return (String)left.value() + (String)right.value();
+        return String.valueOf(left.value()) + String.valueOf(right.value());
     }
     
     
