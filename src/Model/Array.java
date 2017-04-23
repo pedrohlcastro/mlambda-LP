@@ -48,13 +48,26 @@ public class Array {
         a.array = newArray;
         return a;
     }
-    
+
     public Array add (int value){
-        return null;
+        //System.out.println("P");
+        Array a = new Array(this.size+1);
+        System.arraycopy(this.array, 0, a.array, 0, this.size);
+        a.array[a.size-1] = value;
+
+        return a;
     }
     
     public Array add (Array array){
-        return null;
+        int tam = this.size + array.size();
+        int[] novo = new int[tam];
+        novo = this.array;
+        for(int i=this.size,k=0; i<tam; i++,k++){
+            novo[i] = array.at(k);
+        }
+        Array a = new Array(tam);
+        a.array = novo;
+        return a;
     }
     
 }

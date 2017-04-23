@@ -12,10 +12,10 @@ public class ShowArrayValue extends ArrayValue{
     public Array value() {
         Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
         ConstArrayValue a;
-        //if(array instanceof ArrayValue){
-            a = (ConstArrayValue)array;
-            a.value().show();
-        //}
+        
+        a = (ConstArrayValue)array;
+        a.value().show();
+        
         
         return a.value();
     }

@@ -429,13 +429,16 @@ public class SyntaticalAnalysis {
     
     //<nfill> ::= fill '[' <expr> ',' <expr> ']'
     private FillArrayValue procNfill () throws IOException{
+        Value<?> size,val;
+        int line = this.lex.line();
         this.matchToken (TokenType.FILL);
         this.matchToken (TokenType.SBRA_OPEN);
-        this.procExpr();
+        size = this.procExpr();
         this.matchToken (TokenType.COMMA);
-        this.procExpr();
+        val = this.procExpr();
         this.matchToken (TokenType.SBRA_CLOSE);
-        return null;
+        FillArrayValue f = new FillArrayValue(size, val, line);
+        return f;
     }
 
     //<array> ::= <show> | <sort> | <add> | <set> | <filter> | <remove> | <each> | <apply>
@@ -444,7 +447,7 @@ public class SyntaticalAnalysis {
             return this.procShow(v);
         }
         else if(this.current.type == TokenType.SORT){
-            return this.procSort( v);
+            return this.procSort(v);
         }
         else if(this.current.type == TokenType.ADD){
             return this.procAdd(v);
@@ -496,11 +499,14 @@ public class SyntaticalAnalysis {
     
     //<add> ::= add '(' <expr> ')'
     private AddArrayValue procAdd (Value<?> v) throws IOException{
+        Value<?> ad;
+        int line = this.lex.line();
         this.matchToken (TokenType.ADD);
         this.matchToken (TokenType.PAR_OPEN);
-        this.procExpr();
+        ad = this.procExpr();
         this.matchToken (TokenType.PAR_CLOSE);
-        return null;
+        AddArrayValue a = new AddArrayValue(v, ad, line);
+        return a;
     }
     
     //<set> ::= set '(' <expr> ',' <expr> ')'

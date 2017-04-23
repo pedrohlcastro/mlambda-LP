@@ -1,9 +1,8 @@
-new fill[n,v]
 x.each(y->cmds)
 x.apply(y->cmds)
-x.add(v)
 x.filter(y->cond)
 x.remove(y->cond)
 
 
+x.add() : nao funciona NEM FUDENDO
 x.set() : pode estar errado
