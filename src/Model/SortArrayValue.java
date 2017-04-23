@@ -10,6 +10,10 @@ public class SortArrayValue extends ArrayValue{
 
     @Override
     public Array value() {
-        return null;
+        Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
+        //Value<?> index = (this.array instanceof Variable) ? ((Variable) this.index).value() : this.index;
+        Array a = (Array) array.value();
+        a = a.sort();
+        return a;
     }
 }

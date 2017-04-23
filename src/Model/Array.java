@@ -19,9 +19,10 @@ public class Array {
     
     public void show (){
         for(int i=0; i<size; i++){
-            System.out.print(array[i]+"-");
             if(i == size-1)
                 System.out.print(array[i]);
+            else
+                System.out.print(array[i]+"-");
         }
         System.out.println("");
     }
@@ -32,6 +33,7 @@ public class Array {
     
     public Array sort(){
         int temp;
+        Array a;
         int[] newArray = this.array;
         for (int i = 0; i < newArray.length; i++){
             for (int j = 0; j < newArray.length; j++){
@@ -42,7 +44,9 @@ public class Array {
                 }
             }
         }
-        return null;
+        a = new Array(this.size);
+        a.array = newArray;
+        return a;
     }
     
     public Array add (int value){

@@ -334,7 +334,7 @@ public class SyntaticalAnalysis {
             return this.procLoad();
         }
         else if (this.current.type == TokenType.NEW){
-            this.procValue();
+            return this.procValue();
         }
         else if (this.current.type == TokenType.VAR){
             return this.procValue();
@@ -370,16 +370,16 @@ public class SyntaticalAnalysis {
         }
         else if(this.current.type == TokenType.VAR){
             // FIXME: me mover pra baixo.
-            return this.procVar();
+            v = this.procVar();
         }
         while(this.current.type == TokenType.DOT){
             this.matchToken(TokenType.DOT);
             if (current.type == TokenType.AT || current.type == TokenType.SIZE){
-                v = this.procInt();
+                v = this.procInt(v);
                 break;
             }
             else 
-                v = this.procArray();
+                v = this.procArray(v);
         }
         return v;
     }
@@ -417,11 +417,14 @@ public class SyntaticalAnalysis {
     
     //<nrand> ::= rand '[' <expr> ']'
     private RandArrayValue procNrand() throws IOException{
+        Value<?> v;
+        int line = this.lex.line();
         this.matchToken(TokenType.RAND);
         this.matchToken(TokenType.SBRA_OPEN);
-        this.procExpr();
+        v = this.procExpr();
+        RandArrayValue r = new RandArrayValue(v, line);
         this.matchToken(TokenType.SBRA_CLOSE);
-        return null;
+        return r;
     }
     
     //<nfill> ::= fill '[' <expr> ',' <expr> ']'
@@ -436,30 +439,30 @@ public class SyntaticalAnalysis {
     }
 
     //<array> ::= <show> | <sort> | <add> | <set> | <filter> | <remove> | <each> | <apply>
-    private ArrayValue procArray () throws IOException{
+    private ArrayValue procArray (Value<?> v) throws IOException{
         if(this.current.type == TokenType.SHOW){
-            return this.procShow();
+            return this.procShow(v);
         }
         else if(this.current.type == TokenType.SORT){
-            this.procSort();
+            return this.procSort( v);
         }
         else if(this.current.type == TokenType.ADD){
-            this.procAdd();
+            return this.procAdd(v);
         }
         else if(this.current.type == TokenType.SET){
-            this.procSet();
+            return this.procSet(v);
         }
         else if(this.current.type == TokenType.FILTER){
-            this.procFilter();
+            return this.procFilter(v);
         }
         else if(this.current.type ==  TokenType.REMOVE){
-            this.procRemove();
+            return this.procRemove(v);
         }
         else if(this.current.type ==  TokenType.EACH){
-            this.procEach();
+            return this.procEach(v);
         }
         else if(this.current.type ==  TokenType.APPLY){
-            this.procApply();
+            return this.procApply(v);
         }
         else
             this.showError();
@@ -467,30 +470,32 @@ public class SyntaticalAnalysis {
     }
     
     //<show> ::= show '(' ')'
-    private ShowArrayValue procShow () throws IOException{
+    private ShowArrayValue procShow (Value<?> v) throws IOException{
         int line = this.lex.line();
         this.matchToken (TokenType.SHOW);
         this.matchToken (TokenType.PAR_OPEN);
         this.matchToken (TokenType.PAR_CLOSE);  
-        //ShowArrayValue s = new ShowArrayValue(QUM E VC,line);
-        return null;      
+        ShowArrayValue s = new ShowArrayValue(v,line);
+        return s;   
     }
     
     //<sort> ::= sort '(' ')'
-    private SortArrayValue procSort() throws IOException{
+    private SortArrayValue procSort(Value<?> v) throws IOException{
+        int line = this.lex.line();
+        SortArrayValue s = null;
         if(this.current.type == TokenType.SORT){
             this.matchToken(TokenType.SORT);
             this.matchToken(TokenType.PAR_OPEN);
             this.matchToken(TokenType.PAR_CLOSE);
+            s = new SortArrayValue(v, line);
         }
         else
-            this.showError();
-        
-        return null;
+            this.showError(); 
+        return s;
     }
     
     //<add> ::= add '(' <expr> ')'
-    private AddArrayValue procAdd () throws IOException{
+    private AddArrayValue procAdd (Value<?> v) throws IOException{
         this.matchToken (TokenType.ADD);
         this.matchToken (TokenType.PAR_OPEN);
         this.procExpr();
@@ -499,24 +504,28 @@ public class SyntaticalAnalysis {
     }
     
     //<set> ::= set '(' <expr> ',' <expr> ')'
-    private SetArrayValue procSet() throws IOException{
+    private SetArrayValue procSet(Value<?> v) throws IOException{
+        Value<?> pos = null;
+        Value<?> valor = null;
+        int line = this.lex.line();
         if(this.current.type == TokenType.SET){
             this.matchToken(TokenType.SET);
             this.matchToken(TokenType.PAR_OPEN);
             if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-                this.procExpr();
+                pos = this.procExpr();
                 this.matchToken(TokenType.COMMA);
-                this.procExpr();
+                valor = this.procExpr();
             }
             else
                 this.showError();
             this.matchToken(TokenType.PAR_CLOSE);
         }
-        return null;
+        SetArrayValue s = new SetArrayValue(v, pos, valor, line);
+        return s;
     }
     
     //<filter> ::= filter '(' <var> '->' <boolexpr> ')'
-    private FilterArrayValue procFilter () throws IOException{
+    private FilterArrayValue procFilter (Value<?> v) throws IOException{
         this.matchToken (TokenType.FILTER);
         this.matchToken (TokenType.PAR_OPEN);
         this.procVar();
@@ -527,7 +536,7 @@ public class SyntaticalAnalysis {
     }
     
     //<remove> ::= remove '(' <var> '->' <boolexpr> ')'
-    private RemoveArrayValue procRemove () throws IOException{
+    private RemoveArrayValue procRemove (Value<?> v) throws IOException{
         this.matchToken(TokenType.REMOVE);
         this.matchToken(TokenType.PAR_OPEN);
         this.procVar();
@@ -538,7 +547,7 @@ public class SyntaticalAnalysis {
     }
     
     //<each> ::= each '(' <var> '->' <statements> ')'
-    private EachArrayValue procEach () throws IOException{
+    private EachArrayValue procEach (Value<?> v) throws IOException{
         this.matchToken (TokenType.EACH);
         this.matchToken (TokenType.PAR_OPEN);
         this.procVar();
@@ -549,7 +558,7 @@ public class SyntaticalAnalysis {
     }
     
     //<apply> ::= apply '(' <var> '->' <statements> ')'
-    private ApplyEachValue procApply () throws IOException{
+    private ApplyEachValue procApply (Value<?> v) throws IOException{
         this.matchToken(TokenType.APPLY);
         this.matchToken(TokenType.PAR_OPEN);
         this.procVar();
@@ -560,34 +569,36 @@ public class SyntaticalAnalysis {
     }
     
     //<int> ::= <at> | <size>
-    private IntValue procInt() throws IOException{
+    private IntValue procInt(Value<?> v) throws IOException{
         if (this.current.type == TokenType.AT)
-            return this.procAt();
+            return this.procAt(v);
         else if (this.current.type == TokenType.SIZE)
-            return this.procSize();
+            return this.procSize(v);
         else
             this.showError();
         return null;
     }
     
     //<at> ::= at '(' <expr> ')'
-    private AtArrayIntValue procAt() throws IOException{
+    private AtArrayIntValue procAt(Value<?> v) throws IOException{
         Value<?> v1;
         int line = this.lex.line();
         this.matchToken(TokenType.AT);
         this.matchToken(TokenType.PAR_OPEN);
         v1 = this.procExpr();
         this.matchToken(TokenType.PAR_CLOSE);
-        AtArrayIntValue av = new AtArrayIntValue(v1, v1, line);
+        AtArrayIntValue av = new AtArrayIntValue(v1, v, line);
         return av;
     }
     
     //<size> ::= size '(' ')'
-    private SizeArrayIntValue procSize() throws IOException{
+    private SizeArrayIntValue procSize(Value<?> v) throws IOException{
+        int line = this.lex.line();
         this.matchToken (TokenType.SIZE);
         this.matchToken (TokenType.PAR_OPEN);
         this.matchToken (TokenType.PAR_CLOSE);
-        return null;
+        SizeArrayIntValue s = new SizeArrayIntValue(v,line);
+        return s;
     }
     
     private Map <String, Variable> vars = new HashMap <String, Variable>();

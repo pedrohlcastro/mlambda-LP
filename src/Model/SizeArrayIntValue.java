@@ -1,6 +1,6 @@
 package Model;
 
-public abstract class SizeArrayIntValue extends IntArrayValue{
+public class SizeArrayIntValue extends IntArrayValue{
     protected Value<?> array;
 
     public SizeArrayIntValue(Value<?> array, int line) {
@@ -9,6 +9,10 @@ public abstract class SizeArrayIntValue extends IntArrayValue{
     }
 
     @Override
-    public abstract Integer value();
+    public Integer value(){
+        Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
+        Array a = (Array) array.value();
+        return a.size();
+    };
     
 }

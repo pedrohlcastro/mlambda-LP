@@ -10,7 +10,12 @@ public class AtArrayIntValue extends IntArrayValue{
 
     @Override
     public Integer value() {
-        return null;
+        Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
+        //Value<?> index = (this.array instanceof Variable) ? ((Variable) this.index).value() : this.index;
+        Array a = (Array) array.value();
+        Integer i = (Integer) index.value();
+        i = a.at(i);
+        return i;
     }
     
 }
