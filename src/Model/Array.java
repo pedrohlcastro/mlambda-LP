@@ -50,24 +50,34 @@ public class Array {
     }
 
     public Array add (int value){
-        //System.out.println("P");
-        Array a = new Array(this.size+1);
-        System.arraycopy(this.array, 0, a.array, 0, this.size);
-        a.array[a.size-1] = value;
-
-        return a;
+        int tempArray[] = this.array;
+        
+        this.size++;
+        this.array = new int[size];
+        
+        int i;
+        for(i = 0; i < tempArray.length; i++)
+            this.array[i] = tempArray[i];
+        
+        this.array[i] = value;
+        
+        return this;
     }
     
     public Array add (Array array){
-        int tam = this.size + array.size();
-        int[] novo = new int[tam];
-        novo = this.array;
-        for(int i=this.size,k=0; i<tam; i++,k++){
-            novo[i] = array.at(k);
-        }
-        Array a = new Array(tam);
-        a.array = novo;
-        return a;
+        int tempArray[] = this.array;
+        
+        this.size += array.size();
+        this.array = new int[size];
+        
+        int c = 0;
+        for(int i = 0; i < tempArray.length; i++, c++)
+            this.array[c] = tempArray[i];
+        
+        for(int i = 0; i < array.size(); i++, c++)
+            this.array[c] = array.at(i);
+        
+        return this;
     }
     
 }

@@ -532,22 +532,24 @@ public class SyntaticalAnalysis {
     
     //<filter> ::= filter '(' <var> '->' <boolexpr> ')'
     private FilterArrayValue procFilter (Value<?> v) throws IOException{
+        int line = this.lex.line();
         this.matchToken (TokenType.FILTER);
         this.matchToken (TokenType.PAR_OPEN);
-        this.procVar();
+        Variable var = this.procVar();
         this.matchToken (TokenType.ARROW);
-        this.procBoolExpr();
+        BoolValue bv = this.procBoolExpr();
         this.matchToken (TokenType.PAR_CLOSE);
-        return null;
+        FilterArrayValue f = new FilterArrayValue(v, var, bv,line);
+        return f;
     }
     
     //<remove> ::= remove '(' <var> '->' <boolexpr> ')'
     private RemoveArrayValue procRemove (Value<?> v) throws IOException{
         this.matchToken(TokenType.REMOVE);
         this.matchToken(TokenType.PAR_OPEN);
-        this.procVar();
+        Variable var = this.procVar();
         this.matchToken(TokenType.ARROW);
-        this.procBoolExpr();
+        BoolValue bv = this.procBoolExpr();
         this.matchToken(TokenType.PAR_CLOSE);
         return null;
     }
@@ -556,9 +558,9 @@ public class SyntaticalAnalysis {
     private EachArrayValue procEach (Value<?> v) throws IOException{
         this.matchToken (TokenType.EACH);
         this.matchToken (TokenType.PAR_OPEN);
-        this.procVar();
+        Variable var = this.procVar();
         this.matchToken (TokenType.ARROW);
-        this.procStatements();
+        Command c = this.procStatements();
         this.matchToken (TokenType.PAR_CLOSE);
         return null;
     }
@@ -567,9 +569,9 @@ public class SyntaticalAnalysis {
     private ApplyEachValue procApply (Value<?> v) throws IOException{
         this.matchToken(TokenType.APPLY);
         this.matchToken(TokenType.PAR_OPEN);
-        this.procVar();
+        Variable var = this.procVar();
         this.matchToken(TokenType.ARROW);
-        this.procStatements();
+        Command c = this.procStatements();
         this.matchToken(TokenType.PAR_CLOSE);
         return null;
     }

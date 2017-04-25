@@ -16,7 +16,9 @@ dois.show();
 
 
 #nao funciona
-#b.add(array);
-#b.show();
-#b.add(13);
-#b.show();
+b.add(array);
+b.show();
+b.add(13);
+b.show();
+b.filter(n -> n>0).size() : amen;
+println(amen);
