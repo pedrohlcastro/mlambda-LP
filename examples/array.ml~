@@ -21,6 +21,6 @@ b.show();
 b.add(13);
 b.show();
 b.filter(n -> n>0).size() : amen;
-b.remove(n -> n>0).size() : am;
+b.filter(n -> n>0).size() : am;
 println(amen);
 println(am);

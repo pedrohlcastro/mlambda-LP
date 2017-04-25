@@ -1,6 +1,11 @@
 package Model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LoadIntValue extends IntValue{
     private Value<?> text;
@@ -8,22 +13,23 @@ public class LoadIntValue extends IntValue{
     public LoadIntValue(Value<?> text, int line) {
         super(line);
         this.text = text;
-        System.out.print(text.value());
     }
 
     @Override
     public Integer value() {
         Scanner sc = new Scanner(System.in);
-        String buffer = sc.nextLine();
-        int valor = 0;
-        try{
-            valor = Integer.parseInt(buffer);
+        System.out.print(text.value().toString());
+
+        int input = 0;
+        try {
+            input = sc.nextInt();
         }
-        catch(Exception e){
-            System.err.println("UNEXPECTED INPUT TYPE\nEXPECTING A INT");
-            System.exit(0);
+        catch (Exception e) {
+            System.out.println("Entrada Invalida!");
+            System.out.println("Erro: " + e);
         }
-        return valor;
+
+        return input;
     }
     
     

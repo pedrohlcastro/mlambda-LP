@@ -1,5 +1,1 @@
-x.each(y->cmds)
-x.apply(y->cmds)
-x.remove(y->cond)
-
 x.set() : pode estar errado

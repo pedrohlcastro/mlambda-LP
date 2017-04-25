@@ -14,7 +14,17 @@ public class RemoveArrayValue extends ArrayValue{
     
     @Override
     public Array value() {
-        return null;
+        Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
+        //Value<?> var = (this.var instanceof Variable) ? ((Variable) this.var).value() : this.var;
+        Array a = (Array) array.value();
+        Array ret = new Array(0);
+        for(int i=0; i<a.size(); i++){
+            ConstIntValue c = new ConstIntValue(a.at(i), -1);
+            var.setValue(c);
+            if(!cond.value())
+                ret.add(a.at(i));
+        }
+        return ret;
     }
     
     

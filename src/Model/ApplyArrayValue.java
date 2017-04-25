@@ -1,11 +1,11 @@
 package Model;
 
-public class EachArrayValue extends ArrayValue{
+public class ApplyArrayValue extends ArrayValue{
     private Value<?> array;
     private Variable var;
     private Command cmd;
 
-    public EachArrayValue(Value<?> array, Variable var, Command cmd, int line) {
+    public ApplyArrayValue(Value<?> array, Variable var, Command cmd, int line) {
         super(line);
         this.array = array;
         this.var = var;
@@ -19,9 +19,18 @@ public class EachArrayValue extends ArrayValue{
         Array a = (Array) array.value();
         for(int i=0; i<a.size(); i++){
             ConstIntValue c = new ConstIntValue(a.at(i), -1);
+            
             var.setValue(c);
             cmd.execute();
+            
+            if(var.value() instanceof IntValue){
+                a.set(i, ((IntValue)var.value()).value());
+            }
+            
         }
         return a;
-    }   
+    }
+    
+    
+    
 }

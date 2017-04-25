@@ -174,22 +174,22 @@ public class SyntaticalAnalysis {
     // <text> ::= (<string> | <expr>) { ‘,’ (<string> | <expr>) }
     //    private StringValue procText () throws IOException{
     private Value<?> procText () throws IOException{
-        int line = lex.line();
-        Value <?> v1 = null;
-        Value <?> v2 = null;
-        StringConcat sc = null;
-        if(this.current.type == TokenType.STRING){
-            v1 = this.procString();
-        }
-        else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
-            v1 = this.procExpr();
-        }
-        else{
-            this.showError();
-        }
-        //devia ser recursivo
-        while(this.current.type == TokenType.COMMA){
-            this.matchToken(TokenType.COMMA);
+//        int line = lex.line();
+//        Value <?> v1 = null;
+//        Value <?> v2 = null;
+//        StringConcat sc = null;
+//        if(this.current.type == TokenType.STRING){
+//            v1 = this.procString();
+//        }
+//        else if(this.current.type == TokenType.VAR || this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+//            v1 = this.procExpr();
+//        }
+//        else{
+//            this.showError();
+//        }
+//        //devia ser recursivo
+//        while(this.current.type == TokenType.COMMA){
+//            this.matchToken(TokenType.COMMA);
 //            if(this.current.type == TokenType.STRING){
 //                v2 = this.procString();
 //                sc = new StringConcat(v1, v2, line);
@@ -201,11 +201,32 @@ public class SyntaticalAnalysis {
 //            else{
 //                this.showError();
 //            }
-            v2 = this.procText();
-            sc = new StringConcat(v1, v2, line);
-            return sc;
+//            v2 = this.procText();
+//            sc = new StringConcat(v1, v2, line);
+//            return sc;
+//        }
+//        return v1;
+        int line = lex.line();
+        Value<?> v = null;
+        Value<?> v2 = null;
+        
+        if(current.type == TokenType.STRING) {
+            v = procString();
+        } else {
+            v = procExpr();
         }
-        return v1;
+
+        while(current.type == TokenType.COMMA) {
+            matchToken(TokenType.COMMA);
+            if(current.type == TokenType.STRING) {
+                v2 = procString();
+            } else {
+                v2 = procExpr();
+            }
+            v = new StringConcat(v, v2, line);
+        }
+        
+        return v;
     }
     
     // <boolexpr> ::= <expr>    <boolop> <expr> { (and | or) <boolexpr> }
@@ -545,35 +566,41 @@ public class SyntaticalAnalysis {
     
     //<remove> ::= remove '(' <var> '->' <boolexpr> ')'
     private RemoveArrayValue procRemove (Value<?> v) throws IOException{
+        int line = this.lex.line();
         this.matchToken(TokenType.REMOVE);
         this.matchToken(TokenType.PAR_OPEN);
         Variable var = this.procVar();
         this.matchToken(TokenType.ARROW);
         BoolValue bv = this.procBoolExpr();
         this.matchToken(TokenType.PAR_CLOSE);
-        return null;
+        RemoveArrayValue r = new RemoveArrayValue(v, var, bv, line);
+        return r;
     }
     
     //<each> ::= each '(' <var> '->' <statements> ')'
     private EachArrayValue procEach (Value<?> v) throws IOException{
+        int line = this.lex.line();
         this.matchToken (TokenType.EACH);
         this.matchToken (TokenType.PAR_OPEN);
         Variable var = this.procVar();
         this.matchToken (TokenType.ARROW);
         Command c = this.procStatements();
         this.matchToken (TokenType.PAR_CLOSE);
-        return null;
+        EachArrayValue e = new EachArrayValue(v, var, c, line);
+        return e;
     }
     
     //<apply> ::= apply '(' <var> '->' <statements> ')'
-    private ApplyEachValue procApply (Value<?> v) throws IOException{
+    private ApplyArrayValue procApply (Value<?> v) throws IOException{
+        int line = this.lex.line();
         this.matchToken(TokenType.APPLY);
         this.matchToken(TokenType.PAR_OPEN);
         Variable var = this.procVar();
         this.matchToken(TokenType.ARROW);
         Command c = this.procStatements();
         this.matchToken(TokenType.PAR_CLOSE);
-        return null;
+        ApplyArrayValue a = new ApplyArrayValue(v, var, c, line);
+        return a;
     }
     
     //<int> ::= <at> | <size>
@@ -631,11 +658,20 @@ public class SyntaticalAnalysis {
         return civ;
     }    
     
-    private ConstStringValue procString () throws IOException{
+//    private ConstStringValue procString () throws IOException{
+//        int line = lex.line();
+//        String text = current.token;
+//        this.matchToken(TokenType.STRING);
+//        ConstStringValue csv = new ConstStringValue (text, line);
+//        return csv;
+//    }
+    private ConstStringValue procString() throws IOException {
         int line = lex.line();
         String text = current.token;
-        this.matchToken(TokenType.STRING);
-        ConstStringValue csv = new ConstStringValue (text, line);
+
+        matchToken(TokenType.STRING);
+
+        ConstStringValue csv = new ConstStringValue(text, line);
         return csv;
     }
 }
