@@ -11,13 +11,14 @@ public class ShowArrayValue extends ArrayValue{
     @Override
     public Array value() {
         Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
-        ConstArrayValue a;
         
-        a = (ConstArrayValue)array;
-        a.value().show();
+        if( array.value() instanceof Array){
+            Array a = (Array)array.value();
+            a.show();
+            return a;
+        }
         
-        
-        return a.value();
+        return null;
     }
     
 }

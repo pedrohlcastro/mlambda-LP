@@ -22,7 +22,7 @@ public class RemoveArrayValue extends ArrayValue{
             ConstIntValue c = new ConstIntValue(a.at(i), -1);
             var.setValue(c);
             if(!cond.value())
-                ret.add(a.at(i));
+                ret = ret.add(a.at(i));
         }
         return ret;
     }

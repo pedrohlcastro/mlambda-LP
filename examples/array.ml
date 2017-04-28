@@ -9,18 +9,19 @@ println(b.at(1));
 println(b.size());
 array.set(1,s-1); #com set(s-1,s-2) nao ta fucionando, primeiro paramentro com erro
 array.show();
-b.sort();
+b.sort().show();
 b.show();
 new fill[s-1,s-3] : dois; #cria vetor de 2
 dois.show();
 
 
 #nao funciona
-b.add(array);
+#;
+#b.show();
+b.add(13).show();
 b.show();
-b.add(13);
+b.add(0).filter(n -> n==0).show();
+b.add(array).remove(n -> n>0).show();
 b.show();
-b.filter(n -> n>0).size() : amen;
-b.remove(n -> n>0).size() : am;
-println(amen);
-println(am);
+b.sort().filter(n -> n>5000).show();
+b.show();
