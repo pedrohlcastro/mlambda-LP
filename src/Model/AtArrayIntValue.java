@@ -12,8 +12,17 @@ public class AtArrayIntValue extends IntArrayValue{
     public Integer value() {
         Value<?> array = (this.array instanceof Variable) ? ((Variable) this.array).value() : this.array;
         Value<?> index = (this.index instanceof Variable) ? ((Variable) this.index).value() : this.index;
-        Array a = (Array) array.value();
-        Integer i = ((IntValue) index).value();
+        Array a = null;
+        int i = 0;
+        try{
+            a = (Array) array.value();
+            i = ((IntValue) index).value();
+        }
+        catch(Exception e){
+            System.err.println("[UNABLE TO ACCESS THIS POSITION OR ARRAY] LINE - " + super.getLine());
+            System.exit(0);
+        }
+        
         i = a.at(i);
         return i;
     }

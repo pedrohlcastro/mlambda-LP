@@ -14,10 +14,6 @@ b.show();
 new fill[s-1,s-3] : dois; #cria vetor de 2
 dois.show();
 
-
-#nao funciona
-#;
-#b.show();
 b.add(13).show();
 b.show();
 b.add(0).filter(n -> n==0).show();

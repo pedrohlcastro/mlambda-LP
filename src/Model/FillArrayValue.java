@@ -16,13 +16,19 @@ public class FillArrayValue extends ArrayValue{
         if(size instanceof IntValue){
             IntValue v = (IntValue)size;
             a = new Array(v.value());
-            for(int i=0; i < v.value(); i++){
-                a.set(i, ((IntValue)value).value());
+            if(value instanceof IntValue){
+                for(int i=0; i < v.value(); i++){
+                    a.set(i, ((IntValue)value).value());
+                }
+            }
+            else{
+                System.err.println("[UNKNOWN VALUE FOR ARRAY] LINE - " + super.getLine());
+                System.exit(0);
             }
         }
         else{
-            System.err.println("UNKNOWN SIZE FOR ARRAY\n");
-            System.exit(0);
+           System.err.println("[UNKNOWN SIZE FOR ARRAY] LINE - " + super.getLine());
+           System.exit(0);
         }
         return a;
     }

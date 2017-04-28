@@ -4,7 +4,7 @@ new rand [s] : array;
 
 # Find the medium
 array.sort().at(s / 2) : medium;
-
+array.sort().show();
 # Find the elements lower (left) and higher (right) then the medium.
 array.filter(n -> n < medium).size() : left;
 array.filter(n -> n > medium).size() : right;

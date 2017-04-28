@@ -36,7 +36,8 @@ public class PrintCommand extends Command{
             
         }
         else{
-            // erro semantico
+            System.err.println("[WRONG TYPE OR VALUE FOR PRINT/PRINTLN] LINE - " + super.getLine());
+            System.exit(0);
         }
         System.out.print(text);
         if (newline)

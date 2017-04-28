@@ -32,12 +32,12 @@ public class SyntaticalAnalysis {
     }
     
     private void errorUnexpectedToken (String token){
-        System.out.printf ("%d: %s\n", this.lex.line(), token);
+        System.err.printf ("[UNEXPECTED TOKEN] LINE - %d : %s\n", this.lex.line(), token);
         System.exit(0);
     }
     
     private void errorUnexpectedEOF (){
-        System.out.printf ("%d: %s\n", this.lex.line(), TokenType.UNEXPECTED_EOF);
+        System.err.printf ("[UNEXPECTED EOF] LINE  - %d: %s\n", this.lex.line(), TokenType.UNEXPECTED_EOF);
         System.exit(0);
     }
     
@@ -538,13 +538,13 @@ public class SyntaticalAnalysis {
         if(this.current.type == TokenType.SET){
             this.matchToken(TokenType.SET);
             this.matchToken(TokenType.PAR_OPEN);
-            if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
+            //if(this.current.type == TokenType.PLUS || this.current.type == TokenType.MINUS || this.current.type == TokenType.NUMBER){
                 pos = this.procExpr();
                 this.matchToken(TokenType.COMMA);
                 valor = this.procExpr();
-            }
-            else
-                this.showError();
+            //}
+            //else
+               // this.showError();
             this.matchToken(TokenType.PAR_CLOSE);
         }
         SetArrayValue s = new SetArrayValue(v, pos, valor, line);

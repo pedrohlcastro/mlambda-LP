@@ -17,7 +17,10 @@ public class ShowArrayValue extends ArrayValue{
             a.show();
             return a;
         }
-        
+        else{
+            System.err.println("[ARRAY NOT DEFINED] LINE - " + super.getLine());
+            System.exit(0);
+        }
         return null;
     }
     

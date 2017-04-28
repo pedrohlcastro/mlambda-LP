@@ -32,7 +32,7 @@ public class mlambda {
 //            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

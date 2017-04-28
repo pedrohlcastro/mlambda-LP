@@ -23,8 +23,8 @@ public class RandArrayValue extends ArrayValue{
             }
         }
         else{
-            System.err.println("UNKNOWN SIZE FOR ARRAY\n");
-            System.exit(0);
+           System.err.println("[UNKNOWN SIZE FOR ARRAY] LINE - " + super.getLine());
+           System.exit(0);
         }
         
         return a;

@@ -18,13 +18,16 @@ public class Array {
     }
     
     public void show (){
+        System.out.print("[");
         for(int i=0; i<size; i++){
-            if(i == size-1)
-                System.out.print(array[i]);
+            if(i==0)
+                System.out.print(array[i]+",");
+            else if(i == size-1)
+                System.out.print(" "+array[i]);
             else
-                System.out.print(array[i]+"-");
+                System.out.print(" "+array[i]+",");
         }
-        System.out.println("");
+        System.out.println("]");
     }
     
     public void set (int index, int value){

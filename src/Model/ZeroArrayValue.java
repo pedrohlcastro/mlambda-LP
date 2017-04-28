@@ -20,7 +20,7 @@ public class ZeroArrayValue extends ArrayValue{
             }
         }
         else{
-            System.err.println("UNKNOWN SIZE FOR ARRAY\n");
+            System.err.println("[UNKNOWN SIZE FOR ARRAY] LINE - " + super.getLine());
             System.exit(0);
         }
         
